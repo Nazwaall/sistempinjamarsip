@@ -419,11 +419,11 @@
         <h5 class="fw-bold mb-1 text-white">Siap Memproses Layanan Peminjaman Arsip Hari Ini?</h5>
         <p class="mb-0 text-white-50 small">Catat peminjaman, lihat detail uraian berkas, dan terbitkan surat resmi beserta TTD petugas layanan.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-3 px-3 py-2 fw-semibold">
+    <div class="d-flex flex-column flex-sm-row gap-2 flex-shrink-0 w-100 w-md-auto mt-2 mt-md-0">
+        <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-3 px-3 py-2 fw-semibold text-center">
             <i class="bi bi-compass me-1"></i> Pelajari Alur
         </a>
-        <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-dark fw-bold rounded-3 px-4 py-2 flex-shrink-0 shadow-sm">
+        <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-dark fw-bold rounded-3 px-4 py-2 text-center shadow-sm">
             Buat Peminjaman Baru <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>

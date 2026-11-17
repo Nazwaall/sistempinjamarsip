@@ -358,23 +358,23 @@
                             @endphp
                             <li class="list-group-item py-2 px-3">
                                 <div class="d-flex justify-content-between align-items-center gap-2">
-                                    <div class="d-flex align-items-center gap-2 min-w-0">
-                                        <span class="rank-medal {{ $rankCls }}">{{ $idx + 1 }}</span>
-                                        <div class="min-w-0">
+                                    <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                                        <span class="rank-medal {{ $rankCls }} flex-shrink-0">{{ $idx + 1 }}</span>
+                                        <div class="min-w-0 flex-grow-1">
                                             @if ($at->arsip)
                                                 <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-semibold text-decoration-none text-dark d-block text-truncate">
                                                     {{ $at->arsip->kode_internal }}
                                                 </a>
-                                                <div class="text-muted small text-truncate" style="max-width: 240px;">{{ $at->arsip->uraian_berkas }}</div>
+                                                <div class="text-muted small text-truncate" style="max-width: 100%;">{{ $at->arsip->uraian_berkas }}</div>
                                             @else
                                                 <span class="text-muted">Arsip #{{ $at->arsip_id }}</span>
                                             @endif
                                         </div>
                                     </div>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill flex-shrink-0">{{ $at->total_pinjam }}x Pinjam</span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill flex-shrink-0 ms-2">{{ $at->total_pinjam }}x Pinjam</span>
                                 </div>
-                                <div class="progress mt-1" style="height: 4px;">
-                                    <div class="progress-bar bg-primary rounded-pill" style="width: {{ $barPct }}%;"></div>
+                                <div class="progress mt-2" style="height: 3px; background-color: #f1f5f9;">
+                                    <div class="progress-bar rounded-pill" style="width: {{ $barPct }}%; background-color: #2563eb;"></div>
                                 </div>
                             </li>
                         @endforeach
@@ -399,7 +399,7 @@
                     </div>
                 @else
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                        <table class="table table-sm table-hover align-middle mb-0 text-nowrap" style="font-size: 0.82rem;">
                             <thead class="table-light text-secondary">
                                 <tr>
                                     <th class="ps-3">No. Surat &amp; Layanan</th>
