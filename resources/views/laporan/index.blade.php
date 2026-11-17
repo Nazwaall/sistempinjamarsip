@@ -83,16 +83,20 @@
         margin-top: 5px;
     }
     .rank-medal {
-        width: 26px;
-        height: 26px;
-        border-radius: 8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.74rem;
+        font-size: 0.78rem;
         font-weight: 700;
         flex-shrink: 0;
     }
+    .rank-top-1 { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .rank-top-2 { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .rank-top-3 { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+    .rank-other { background: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0; }
 </style>
 @endpush
 
@@ -345,36 +349,38 @@
                         Belum ada statistik peminjaman pada tahun {{ $tahun }}.
                     </div>
                 @else
-                    <ul class="list-group list-group-flush" style="font-size: 0.85rem;">
+                    <ul class="list-group list-group-flush mb-0">
                         @foreach ($arsipTerbanyak as $idx => $at)
                             @php
                                 $rankCls = match ($idx) {
-                                    0 => 'bg-warning text-dark',
-                                    1 => 'bg-secondary text-white',
-                                    2 => 'bg-info-subtle text-info-emphasis',
-                                    default => 'bg-light text-secondary border',
+                                    0 => 'rank-top-1',
+                                    1 => 'rank-top-2',
+                                    2 => 'rank-top-3',
+                                    default => 'rank-other',
                                 };
-                                $barPct = round(($at->total_pinjam / $maxArsipPinjam) * 100);
                             @endphp
-                            <li class="list-group-item py-2 px-3">
-                                <div class="d-flex justify-content-between align-items-center gap-2">
-                                    <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                            <li class="list-group-item py-3 px-3 border-bottom border-light-subtle">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-2.5 min-w-0 flex-grow-1">
                                         <span class="rank-medal {{ $rankCls }} flex-shrink-0">{{ $idx + 1 }}</span>
                                         <div class="min-w-0 flex-grow-1">
                                             @if ($at->arsip)
-                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-semibold text-decoration-none text-dark d-block text-truncate">
+                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-bold text-decoration-none text-dark d-block text-truncate mb-0.5" style="font-size: 0.85rem;">
                                                     {{ $at->arsip->kode_internal }}
                                                 </a>
-                                                <div class="text-muted small text-truncate" style="max-width: 100%;">{{ $at->arsip->uraian_berkas }}</div>
+                                                <div class="text-secondary small text-truncate" style="font-size: 0.77rem; line-height: 1.3;">
+                                                    {{ $at->arsip->uraian_berkas }}
+                                                </div>
                                             @else
-                                                <span class="text-muted">Arsip #{{ $at->arsip_id }}</span>
+                                                <span class="text-muted small">Arsip #{{ $at->arsip_id }}</span>
                                             @endif
                                         </div>
                                     </div>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill flex-shrink-0 ms-2">{{ $at->total_pinjam }}x Pinjam</span>
-                                </div>
-                                <div class="progress mt-2" style="height: 3px; background-color: #f1f5f9;">
-                                    <div class="progress-bar rounded-pill" style="width: {{ $barPct }}%; background-color: #2563eb;"></div>
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1.5 fw-semibold" style="font-size: 0.72rem;">
+                                            {{ $at->total_pinjam }}x Pinjam
+                                        </span>
+                                    </div>
                                 </div>
                             </li>
                         @endforeach
