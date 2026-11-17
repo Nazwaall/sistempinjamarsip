@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#1e3a8a"/>
+  <path d="M96 160C96 142.3 110.3 128 128 128H384C401.7 128 416 142.3 416 160V208H96V160ZM96 240H416V352C416 369.7 401.7 384 384 384H128C110.3 384 96 369.7 96 352V240ZM208 288C208 279.2 215.2 272 224 272H288C296.8 272 304 279.2 304 288C304 296.8 296.8 304 288 304H224C215.2 304 208 296.8 208 288Z" fill="#ffffff"/>
+  <text x="256" y="440" font-family="system-ui, sans-serif" font-weight="bold" font-size="44" fill="#ffffff" text-anchor="middle">SIPA</text>
+</svg>
