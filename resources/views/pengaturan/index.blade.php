@@ -132,28 +132,6 @@
                 <small class="text-muted d-block mt-3">Format ini diterapkan otomatis pada cetak dokumen PDF surat peminjaman arsip fisik.</small>
             </div>
         </div>
-
-        <!-- Card Pintasan Backup Database (SuperAdmin) -->
-        <div class="card border-0 shadow-sm rounded-3 mt-4">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0 text-slate-800"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Cadangan &amp; Keamanan Data</h6>
-            </div>
-            <div class="card-body p-4 pt-0">
-                <p class="text-muted small mb-3">
-                    Super Admin dapat mengunduh salinan cadangan (*backup*) database (.sql) atau log audit (.csv) sewaktu-waktu secara mandiri.
-                </p>
-                <div class="d-flex flex-column gap-2">
-                    <a href="{{ route('backup.database') }}" class="btn btn-outline-primary btn-sm rounded-pill py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-database-fill-down"></i>
-                        <span>Unduh Database (.sql)</span>
-                    </a>
-                    <a href="{{ route('backup.index') }}" class="btn btn-light border btn-sm rounded-pill py-2 text-secondary fw-semibold d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-arrow-right-circle"></i>
-                        <span>Buka Menu Cadangan Data</span>
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

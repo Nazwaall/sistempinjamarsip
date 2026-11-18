@@ -3,20 +3,20 @@
 @section('title', 'Log Audit Aktivitas')
 
 @section('content')
-<div class="sipa-page-hero mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+<div class="sipa-page-hero mb-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
     <div>
         <div class="sipa-kicker">PENGAWASAN &amp; KEAMANAN</div>
         <h3 class="fw-bold mb-1 text-slate-800">Log Audit Aktivitas Sistem</h3>
         <p class="text-muted small mb-0">Rekam jejak seluruh aktivitas penting dan transaksi peminjaman berkas arsip.</p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-        <a href="{{ route('backup.audit-log') }}" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1.5 shadow-xs text-nowrap d-inline-flex align-items-center gap-1" title="Unduh seluruh rekam jejak log audit ke file CSV">
-            <i class="bi bi-filetype-csv fs-6"></i>
-            <span>Unduh Cadangan (.csv)</span>
-        </a>
-        <a href="{{ route('backup.index') }}" class="btn btn-primary btn-sm rounded-pill px-3 py-1.5 shadow-xs text-nowrap d-inline-flex align-items-center gap-1" style="background-color: #162660; border-color: #162660;" title="Buka menu Backup Penuh Database">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('audit-log.backup-sql', request()->query()) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" title="Unduh File Cadangan Database SQL Log Audit">
             <i class="bi bi-database-down"></i>
-            <span>Backup Database</span>
+            <span>Backup Log (SQL)</span>
+        </a>
+        <a href="{{ route('audit-log.export-excel', request()->query()) }}" class="btn btn-success btn-sm rounded-pill px-3 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" title="Ekspor Rekap Log Audit ke Spreadsheet Excel">
+            <i class="bi bi-file-earmark-excel"></i>
+            <span>Ekspor Excel</span>
         </a>
     </div>
 </div>
