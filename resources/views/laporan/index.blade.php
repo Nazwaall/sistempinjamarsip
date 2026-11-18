@@ -83,20 +83,34 @@
         margin-top: 5px;
     }
     .rank-medal {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         font-weight: 700;
         flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
-    .rank-top-1 { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-    .rank-top-2 { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-    .rank-top-3 { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-    .rank-other { background: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0; }
+    .rank-top-1 { background: #fef3c7; color: #b45309; border: 1.5px solid #fde68a; }
+    .rank-top-2 { background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; }
+    .rank-top-3 { background: #ffedd5; color: #c2410c; border: 1.5px solid #fed7aa; }
+    .rank-other { background: #f8fafc; color: #94a3b8; border: 1.5px solid #e2e8f0; }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .top-archive-item {
+        transition: background-color 0.15s ease;
+    }
+    .top-archive-item:hover {
+        background-color: #f8faff;
+    }
 </style>
 @endpush
 
@@ -359,27 +373,40 @@
                                     default => 'rank-other',
                                 };
                             @endphp
-                            <li class="list-group-item py-3 px-3 border-bottom border-light-subtle">
-                                <div class="d-flex align-items-center justify-content-between gap-3">
-                                    <div class="d-flex align-items-center gap-2.5 min-w-0 flex-grow-1">
-                                        <span class="rank-medal {{ $rankCls }} flex-shrink-0">{{ $idx + 1 }}</span>
-                                        <div class="min-w-0 flex-grow-1">
+                            <li class="list-group-item py-3 px-3 border-bottom border-light-subtle top-archive-item">
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="rank-medal {{ $rankCls }} mt-0.5">{{ $idx + 1 }}</span>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
                                             @if ($at->arsip)
-                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-bold text-decoration-none text-dark d-block text-truncate mb-0.5" style="font-size: 0.85rem;">
+                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-bold text-decoration-none d-inline-block text-truncate" style="font-size: 0.88rem; color: #162660;">
                                                     {{ $at->arsip->kode_internal }}
                                                 </a>
-                                                <div class="text-secondary small text-truncate" style="font-size: 0.77rem; line-height: 1.3;">
-                                                    {{ $at->arsip->uraian_berkas }}
-                                                </div>
                                             @else
                                                 <span class="text-muted small">Arsip #{{ $at->arsip_id }}</span>
                                             @endif
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 fw-semibold flex-shrink-0" style="font-size: 0.72rem;">
+                                                <i class="bi bi-arrow-repeat me-1"></i>{{ $at->total_pinjam }}x Pinjam
+                                            </span>
                                         </div>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1.5 fw-semibold" style="font-size: 0.72rem;">
-                                            {{ $at->total_pinjam }}x Pinjam
-                                        </span>
+                                        @if ($at->arsip)
+                                            <div class="text-secondary line-clamp-2 mb-1" style="font-size: 0.80rem; line-height: 1.35;">
+                                                {{ $at->arsip->uraian_berkas }}
+                                            </div>
+                                            <div class="d-flex flex-wrap align-items-center gap-2 text-muted" style="font-size: 0.70rem;">
+                                                @if ($at->arsip->unit_pengolah_asal)
+                                                    <span><i class="bi bi-building me-1 opacity-75"></i>{{ $at->arsip->unit_pengolah_asal }}</span>
+                                                @endif
+                                                @if ($at->arsip->tahun)
+                                                    <span>•</span>
+                                                    <span><i class="bi bi-calendar3 me-1 opacity-75"></i>Th. {{ $at->arsip->tahun }}</span>
+                                                @endif
+                                                @if ($at->arsip->lokasi_simpan)
+                                                    <span>•</span>
+                                                    <span><i class="bi bi-box-seam me-1 opacity-75"></i>{{ $at->arsip->lokasi_simpan }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </li>
