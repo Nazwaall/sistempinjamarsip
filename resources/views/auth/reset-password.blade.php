@@ -5,15 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atur Ulang Password - SIPA Dinas Kearsipan & Perpustakaan Kab. Cirebon</title>
     <script>
-        (function() {
-            try {
-                const savedTheme = localStorage.getItem('sipa_theme');
-                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const activeTheme = savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-bs-theme', activeTheme);
-                document.documentElement.setAttribute('data-theme', activeTheme);
-            } catch (e) {}
-        })();
+        try { localStorage.removeItem('sipa_theme'); } catch (e) {}
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -41,33 +33,6 @@
             font-size: 15px;
             min-height: 46px;
         }
-
-        /* Dark Mode */
-        [data-bs-theme="dark"] body {
-            background: radial-gradient(circle at top right, #0f172a 0%, #0b1120 45%, #020617 100%) !important;
-            color: #e2e8f0;
-        }
-        [data-bs-theme="dark"] .auth-card {
-            background: #111a2e !important;
-            border-color: #1e293b !important;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6) !important;
-        }
-        [data-bs-theme="dark"] .text-slate-800 {
-            color: #f8fafc !important;
-        }
-        [data-bs-theme="dark"] .form-control {
-            background-color: #0d1526 !important;
-            border-color: #334155 !important;
-            color: #f1f5f9 !important;
-        }
-        [data-bs-theme="dark"] .input-group-text {
-            background-color: #16233f !important;
-            border-color: #334155 !important;
-            color: #94a3b8 !important;
-        }
-        [data-bs-theme="dark"] .border-top {
-            border-top-color: #1e293b !important;
-        }
     </style>
 </head>
 <body>
@@ -75,7 +40,7 @@
 <div class="auth-card p-4 p-sm-5">
     <div class="text-center mb-4">
         <img src="{{ asset('images/logo-cirebon.png') }}" alt="Lambang Kabupaten Cirebon" style="height: 60px; width: auto;" class="mb-2">
-        <h4 class="fw-bold text-slate-800 mb-1">Buat Password Baru</h4>
+        <h4 class="fw-bold text-dark mb-1">Buat Password Baru</h4>
         <p class="text-muted small mb-0">Masukkan password baru minimal 6 karakter untuk akun SIPA Anda</p>
     </div>
 

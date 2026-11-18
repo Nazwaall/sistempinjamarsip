@@ -21,16 +21,12 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <!-- Immediate Theme Setup (Mencegah kedipan putih/FOUC saat berpindah halaman) -->
     <script>
-        (function() {
-            try {
-                const storedTheme = localStorage.getItem('sipa_theme');
-                const theme = storedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-bs-theme', theme);
-                document.documentElement.setAttribute('data-theme', theme);
-            } catch (e) {}
-        })();
+        try {
+            localStorage.removeItem('sipa_theme');
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            document.documentElement.setAttribute('data-theme', 'light');
+        } catch (e) {}
     </script>
     
     <!-- Custom SIPA Sidebar Layout Style -->
@@ -561,261 +557,6 @@
         .btn-action-danger:hover { background: #dc2626; color: #ffffff; border-color: #dc2626; }
         .btn-action-success { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
         .btn-action-success:hover { background: #16a34a; color: #ffffff; border-color: #16a34a; }
-
-        /* --- DARK THEME STYLING (MODE GELAP ELEGAN) --- */
-        [data-bs-theme="dark"] {
-            --content-bg: #0b1120;
-            --sipa-navy: #3b82f6;
-            --sipa-navy-hover: #60a5fa;
-            --sipa-navy-soft: #1e293b;
-            --sipa-border: #1e2e4a;
-            --bs-body-bg: #0b1120;
-            --bs-body-color: #e2e8f0;
-        }
-
-        [data-bs-theme="dark"] body {
-            background-color: #0b1120 !important;
-            color: #e2e8f0;
-        }
-
-        [data-bs-theme="dark"] .text-slate-800,
-        [data-bs-theme="dark"] .text-dark {
-            color: #f8fafc !important;
-        }
-
-        [data-bs-theme="dark"] .text-muted,
-        [data-bs-theme="dark"] .text-secondary {
-            color: #94a3b8 !important;
-        }
-
-        [data-bs-theme="dark"] .bg-white {
-            background-color: #111a2e !important;
-            color: #e2e8f0 !important;
-        }
-
-        [data-bs-theme="dark"] .bg-light {
-            background-color: #162036 !important;
-            color: #e2e8f0 !important;
-        }
-
-        [data-bs-theme="dark"] .border,
-        [data-bs-theme="dark"] .border-top,
-        [data-bs-theme="dark"] .border-bottom,
-        [data-bs-theme="dark"] .border-start,
-        [data-bs-theme="dark"] .border-end {
-            border-color: #1e2e4a !important;
-        }
-
-        [data-bs-theme="dark"] .sipa-topbar {
-            background: #0d1527;
-            border-bottom-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .topbar-toggle-btn {
-            border-color: #243453;
-            color: #cbd5e1;
-        }
-        [data-bs-theme="dark"] .topbar-toggle-btn:hover {
-            background: #162036;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .card {
-            background-color: #111a2e;
-            border-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .card-header {
-            background-color: #111a2e;
-            border-bottom-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .card-footer {
-            background-color: #111a2e;
-            border-top-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .sipa-page-hero {
-            background: linear-gradient(135deg, #0e172e 0%, #16254a 55%, #1b3168 100%);
-            border-color: #22355c;
-            color: #ffffff;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-        }
-
-        [data-bs-theme="dark"] .sipa-page-hero .text-slate-800 {
-            color: #ffffff !important;
-        }
-
-        [data-bs-theme="dark"] .sipa-page-hero .text-muted {
-            color: #cbd5e1 !important;
-        }
-
-        [data-bs-theme="dark"] .sipa-kicker {
-            color: #93c5fd;
-        }
-
-        [data-bs-theme="dark"] .sipa-filter-card {
-            background: #111a2e;
-            border-color: #1e2e4a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        }
-
-        [data-bs-theme="dark"] .service-tile {
-            background: #111a2e;
-            border-color: #1e2e4a;
-            color: #e2e8f0;
-        }
-
-        [data-bs-theme="dark"] .service-tile:hover {
-            border-color: #3b82f6;
-            background: #16233f;
-        }
-
-        [data-bs-theme="dark"] .loan-item-row {
-            border-bottom-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .loan-item-row:hover {
-            background-color: #16233f;
-        }
-
-        [data-bs-theme="dark"] .btn-detail-outline {
-            background: #162036;
-            border-color: #243453;
-            color: #f1f5f9;
-        }
-
-        [data-bs-theme="dark"] .btn-detail-outline:hover {
-            background: #3b82f6;
-            border-color: #3b82f6;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .chip-quick {
-            background: #162036;
-            border-color: #243453;
-            color: #cbd5e1;
-        }
-
-        [data-bs-theme="dark"] .chip-quick:hover {
-            background: #3b82f6;
-            color: #ffffff;
-            border-color: #3b82f6;
-        }
-
-        [data-bs-theme="dark"] .sipa-footer {
-            background: #0d1527;
-            border-top-color: #1e2e4a;
-            color: #94a3b8;
-        }
-
-        [data-bs-theme="dark"] .table {
-            color: #e2e8f0;
-            border-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .table thead th {
-            background-color: #16233f;
-            color: #cbd5e1;
-            border-bottom-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .table tbody td {
-            border-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .table-hover tbody tr:hover td {
-            background-color: #16233f !important;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .form-control,
-        [data-bs-theme="dark"] .form-select {
-            background-color: #141f36;
-            border-color: #243453;
-            color: #f1f5f9;
-        }
-
-        [data-bs-theme="dark"] .form-control:focus,
-        [data-bs-theme="dark"] .form-select:focus {
-            background-color: #141f36;
-            border-color: #3b82f6;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .input-group-text {
-            background-color: #16233f;
-            border-color: #243453;
-            color: #cbd5e1;
-        }
-
-        [data-bs-theme="dark"] .modal-content {
-            background-color: #111a2e;
-            border-color: #1e2e4a;
-            color: #f1f5f9;
-        }
-
-        [data-bs-theme="dark"] .modal-header,
-        [data-bs-theme="dark"] .modal-footer {
-            border-color: #1e2e4a;
-        }
-
-        [data-bs-theme="dark"] .modal-header.bg-light,
-        [data-bs-theme="dark"] .modal-footer.bg-light {
-            background-color: #16233f !important;
-        }
-
-        [data-bs-theme="dark"] .kpi-card,
-        [data-bs-theme="dark"] .peminjam-stat-card {
-            background-color: #111a2e;
-            border-color: #1e2e4a;
-            color: #e2e8f0;
-        }
-
-        [data-bs-theme="dark"] .peminjam-stat-card.is-active {
-            background-color: #16254a;
-            border-color: #3b82f6;
-        }
-
-        [data-bs-theme="dark"] .chip-filter {
-            background-color: #162036;
-            border-color: #243453;
-            color: #cbd5e1;
-        }
-
-        [data-bs-theme="dark"] .chip-filter:hover {
-            background-color: #1e2e4a;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .chip-filter.active {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .list-group-item {
-            background-color: #111a2e;
-            border-color: #1e2e4a;
-            color: #e2e8f0;
-        }
-
-        [data-bs-theme="dark"] .btn-outline-secondary {
-            border-color: #243453;
-            color: #cbd5e1;
-        }
-
-        [data-bs-theme="dark"] .btn-outline-secondary:hover {
-            background-color: #1e2e4a;
-            border-color: #1e2e4a;
-            color: #ffffff;
-        }
-
-        [data-bs-theme="dark"] .badge.bg-light {
-            background-color: #16233f !important;
-            color: #cbd5e1 !important;
-            border-color: #243453 !important;
-        }
     </style>
     @stack('styles')
 </head>
@@ -981,12 +722,6 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <!-- Tombol Mode Gelap / Terang -->
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-xs" id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Mode Gelap / Terang" aria-label="Ganti Tema">
-                    <i class="bi bi-moon-stars-fill text-primary" id="themeToggleIcon"></i>
-                    <span class="ms-1 small fw-semibold d-none d-sm-inline" id="themeToggleText">Gelap</span>
-                </button>
-
                 <!-- Tombol Ganti Password Topbar -->
                 <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 d-inline-flex align-items-center shadow-xs" data-bs-toggle="modal" data-bs-target="#modalGantiPassword" title="Ganti Password Akun">
                     <i class="bi bi-key-fill text-warning"></i>
@@ -1081,39 +816,6 @@
                     document.body.classList.add('sidebar-collapsed');
                 }
             }
-        });
-
-        // Theme Controller (Mode Gelap / Terang)
-        function updateThemeUI(theme) {
-            const btn = document.getElementById('themeToggleBtn');
-            const icon = document.getElementById('themeToggleIcon');
-            const text = document.getElementById('themeToggleText');
-            if (!icon) return;
-            if (theme === 'dark') {
-                icon.className = 'bi bi-sun-fill text-warning';
-                if (text) text.textContent = 'Terang';
-                if (btn) btn.setAttribute('title', 'Beralih ke Mode Terang');
-            } else {
-                icon.className = 'bi bi-moon-stars-fill text-primary';
-                if (text) text.textContent = 'Gelap';
-                if (btn) btn.setAttribute('title', 'Beralih ke Mode Gelap');
-            }
-        }
-
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-bs-theme') || 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-bs-theme', next);
-            document.documentElement.setAttribute('data-theme', next);
-            try {
-                localStorage.setItem('sipa_theme', next);
-            } catch (e) {}
-            updateThemeUI(next);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const activeTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-            updateThemeUI(activeTheme);
         });
 
         // Register PWA Service Worker

@@ -653,12 +653,12 @@
         <div class="accordion-item border rounded-3 mb-2">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed fw-semibold text-slate-800" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                    4. Bagaimana cara mengaktifkan Mode Gelap (Dark Mode)?
+                    4. Bagaimana jika ingin mengganti password akun atau lupa kata sandi?
                 </button>
             </h2>
             <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#accordionFaq">
                 <div class="accordion-body small text-muted">
-                    Klik tombol ikon <strong>Bulan / Matahari</strong> pada bilah atas (topbar) di samping tanggal. Tampilan akan langsung beralih ke mode gelap atau terang, dan preferensi Anda akan tersimpan otomatis di browser sehingga tidak berubah saat berpindah halaman.
+                    Untuk mengganti password saat sudah masuk ke sistem, klik tombol <strong>Sandi</strong> (ikon kunci) pada bilah atas layar. Jika lupa password dan tidak dapat masuk, gunakan tautan <strong>Lupa Password?</strong> di halaman login untuk mengajukan permohonan reset langsung kepada Super Admin.
                 </div>
             </div>
         </div>

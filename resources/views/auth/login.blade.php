@@ -5,15 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk - SIPA Dinas Kearsipan & Perpustakaan Kab. Cirebon</title>
     <script>
-        (function() {
-            try {
-                const savedTheme = localStorage.getItem('sipa_theme');
-                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const activeTheme = savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-bs-theme', activeTheme);
-                document.documentElement.setAttribute('data-theme', activeTheme);
-            } catch (e) {}
-        })();
+        try { localStorage.removeItem('sipa_theme'); } catch (e) {}
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -27,7 +19,6 @@
             justify-content: center;
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             padding: 16px;
-            transition: background 0.3s ease, color 0.3s ease;
         }
         .login-card {
             background: #ffffff;
@@ -37,7 +28,6 @@
             max-width: 450px;
             width: 100%;
             overflow: hidden;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .touch-input {
             font-size: 16px; /* Mencegah auto-zoom di iPhone */
@@ -45,58 +35,9 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin-animation { animation: spin 0.6s linear infinite; display: inline-block; }
-
-        /* Dark Mode Overrides */
-        [data-bs-theme="dark"] body {
-            background: radial-gradient(circle at top right, #0f172a 0%, #0b1120 45%, #020617 100%) !important;
-            color: #e2e8f0;
-        }
-        [data-bs-theme="dark"] .login-card {
-            background: #111a2e !important;
-            border-color: #1e293b !important;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6) !important;
-        }
-        [data-bs-theme="dark"] .text-slate-800 {
-            color: #f8fafc !important;
-        }
-        [data-bs-theme="dark"] .bg-light {
-            background-color: #16233f !important;
-            border-color: #1e293b !important;
-        }
-        [data-bs-theme="dark"] .form-control {
-            background-color: #0d1526 !important;
-            border-color: #334155 !important;
-            color: #f1f5f9 !important;
-        }
-        [data-bs-theme="dark"] .form-control:focus {
-            background-color: #0d1526 !important;
-            border-color: #3b82f6 !important;
-            color: #ffffff !important;
-        }
-        [data-bs-theme="dark"] .input-group-text {
-            background-color: #16233f !important;
-            border-color: #334155 !important;
-            color: #94a3b8 !important;
-        }
-        [data-bs-theme="dark"] .btn-light {
-            background-color: #16233f !important;
-            border-color: #334155 !important;
-            color: #cbd5e1 !important;
-        }
-        [data-bs-theme="dark"] .badge.bg-secondary-subtle {
-            background-color: rgba(148, 163, 184, 0.15) !important;
-            color: #cbd5e1 !important;
-            border-color: rgba(148, 163, 184, 0.25) !important;
-        }
     </style>
 </head>
 <body>
-
-<!-- Floating Theme Toggle -->
-<button type="button" class="btn btn-sm btn-outline-secondary rounded-pill position-fixed top-0 end-0 m-3 d-flex align-items-center gap-1 shadow-sm px-3 py-2" id="loginThemeToggle" onclick="toggleLoginTheme()" title="Ganti Mode Gelap / Terang">
-    <i class="bi bi-moon-stars-fill" id="loginThemeIcon"></i>
-    <span class="small fw-semibold" id="loginThemeText">Mode Gelap</span>
-</button>
 
 <div class="login-card p-4 p-sm-5">
     <!-- Header -->
@@ -150,12 +91,13 @@
                 <label for="human_verification" class="form-label small fw-semibold text-secondary mb-0">
                     <i class="bi bi-shield-check text-primary me-1"></i> Verifikasi Keamanan:
                 </label>
-                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted" onclick="refreshCaptcha()" title="Ganti Pertanyaan">
-                    <i class="bi bi-arrow-clockwise me-1" id="iconRefreshCaptcha"></i><span style="font-size: 0.75rem;">Ganti Soal</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2.5 rounded-pill text-decoration-none d-inline-flex align-items-center gap-1 shadow-xs" onclick="refreshCaptcha()" title="Ganti Pertanyaan Soal" style="font-size: 0.78rem;">
+                    <i class="bi bi-arrow-clockwise" id="iconRefreshCaptcha"></i>
+                    <span>Ganti Soal</span>
                 </button>
             </div>
             <div class="input-group">
-                <span class="input-group-text bg-light border-end-0 fw-bold text-slate-800 px-3" id="captchaQuestionBadge" style="letter-spacing: 1px; font-size: 0.95rem; min-width: 110px; justify-content: center;">
+                <span class="input-group-text bg-light border-end-0 fw-bold text-dark px-3 user-select-none" id="captchaQuestionBadge" onclick="refreshCaptcha()" style="letter-spacing: 1px; font-size: 0.95rem; min-width: 110px; justify-content: center; cursor: pointer;" title="Klik untuk ganti soal">
                     {{ session('human_question', '5 + 3 = ?') }}
                 </span>
                 <input type="number" name="human_verification" id="human_verification" class="form-control border-start-0 touch-input" placeholder="Hasil hitungan..." required autocomplete="off">
@@ -182,60 +124,44 @@
 </div>
 
 <script>
-    function updateLoginThemeUI(theme) {
-        const icon = document.getElementById('loginThemeIcon');
-        const text = document.getElementById('loginThemeText');
-        if (!icon || !text) return;
-
-        if (theme === 'dark') {
-            icon.className = 'bi bi-sun-fill text-warning';
-            text.textContent = 'Mode Terang';
-        } else {
-            icon.className = 'bi bi-moon-stars-fill text-primary';
-            text.textContent = 'Mode Gelap';
-        }
-    }
-
-    function toggleLoginTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-bs-theme', nextTheme);
-        document.documentElement.setAttribute('data-theme', nextTheme);
-        localStorage.setItem('sipa_theme', nextTheme);
-        updateLoginThemeUI(nextTheme);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-        updateLoginThemeUI(currentTheme);
-    });
-
     function refreshCaptcha() {
         const icon = document.getElementById('iconRefreshCaptcha');
         const badge = document.getElementById('captchaQuestionBadge');
         const input = document.getElementById('human_verification');
         if (icon) icon.classList.add('spin-animation');
 
-        fetch('{{ route("captcha.refresh") }}')
-            .then(res => res.json())
-            .then(data => {
-                if (data.question && badge) {
-                    badge.textContent = data.question;
-                }
-                if (input) {
-                    input.value = '';
-                    input.focus();
-                }
-            })
-            .catch(() => {})
-            .finally(() => {
-                if (icon) icon.classList.remove('spin-animation');
-            });
+        fetch('/captcha/refresh', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP error ' + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (data.question && badge) {
+                badge.textContent = data.question;
+            }
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+        })
+        .catch(err => {
+            console.error('Gagal memperbarui soal captcha:', err);
+        })
+        .finally(() => {
+            if (icon) icon.classList.remove('spin-animation');
+        });
     }
 
     function togglePasswordVisibility(inputId, iconId) {
         const input = document.getElementById(inputId);
         const icon = document.getElementById(iconId);
+        if (!input || !icon) return;
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.remove('bi-eye');
