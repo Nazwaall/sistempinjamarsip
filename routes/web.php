@@ -31,13 +31,20 @@ Route::post('/lupa-password/ajukan', [AuthController::class, 'submitAdminResetRe
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-// File Storage Delivery (Fallback aman untuk Windows/tanpa symlink)
+// File Storage Delivery (Fallback aman untuk Windows / Nginx / container tanpa symlink)
 Route::get('/storage/{path}', function ($path) {
-    $filePath = storage_path('app/public/' . $path);
+    $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
+    $filePath = storage_path('app/public/' . $cleanPath);
     if (!file_exists($filePath)) {
+        $publicPath = public_path('storage/' . $cleanPath);
+        if (file_exists($publicPath)) {
+            return response()->file($publicPath);
+        }
         abort(404);
     }
-    return response()->file($filePath);
+    return response()->file($filePath, [
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
 })->where('path', '.*')->name('storage.local');
 
 // Halaman dengan proteksi login

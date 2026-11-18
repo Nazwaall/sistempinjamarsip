@@ -268,14 +268,24 @@
                     <div class="col-12 col-md-6">
                         <div class="small fw-bold text-secondary mb-2"><i class="bi bi-pen me-1"></i> Bukti Tanda Tangan Peminjam:</div>
                         @if ($peminjaman->metode_ttd === 'Digital' && $peminjaman->ttd_peminjam_path)
+                            @php
+                                $ttdUrl = str_starts_with($peminjaman->ttd_peminjam_path, 'http') 
+                                    ? $peminjaman->ttd_peminjam_path 
+                                    : '/storage/' . ltrim($peminjaman->ttd_peminjam_path, '/');
+                            @endphp
                             <div class="border rounded-3 p-3 bg-light text-center" style="max-width: 280px;">
-                                <img src="{{ asset('storage/' . $peminjaman->ttd_peminjam_path) }}" alt="Tanda Tangan Digital" class="img-fluid" style="max-height: 100px;">
+                                <img src="{{ $ttdUrl }}" alt="Tanda Tangan Digital" class="img-fluid" style="max-height: 100px; max-width: 100%; object-fit: contain;">
                                 <div class="border-top pt-1 mt-2 small fw-semibold text-slate-800">{{ $peminjaman->peminjam->nama }}</div>
                                 <small class="text-muted" style="font-size: 0.7rem;">Ditandatangani digital di layar</small>
                             </div>
                         @elseif ($peminjaman->metode_ttd === 'Manual' && $peminjaman->surat_ttd_path)
+                            @php
+                                $suratTtdUrl = str_starts_with($peminjaman->surat_ttd_path, 'http') 
+                                    ? $peminjaman->surat_ttd_path 
+                                    : '/storage/' . ltrim($peminjaman->surat_ttd_path, '/');
+                            @endphp
                             <div class="border rounded-3 p-3 bg-light" style="max-width: 280px;">
-                                <a href="{{ asset('storage/' . $peminjaman->surat_ttd_path) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <a href="{{ $suratTtdUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                     <i class="bi bi-file-earmark-check me-1"></i> Buka Foto Surat Bertanda Tangan
                                 </a>
                             </div>
@@ -295,8 +305,13 @@
                         @if ($peminjaman->buktiFoto->isNotEmpty())
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach ($peminjaman->buktiFoto as $foto)
-                                    <a href="{{ asset('storage/' . $foto->file_path) }}" target="_blank" class="border rounded-3 p-1 bg-light text-center text-decoration-none" style="width: 145px;" title="Klik untuk memperbesar">
-                                        <img src="{{ asset('storage/' . $foto->file_path) }}" alt="Foto Bukti" class="img-fluid rounded" style="height: 100px; object-fit: cover;">
+                                    @php
+                                        $fotoUrl = str_starts_with($foto->file_path, 'http') 
+                                            ? $foto->file_path 
+                                            : '/storage/' . ltrim($foto->file_path, '/');
+                                    @endphp
+                                    <a href="{{ $fotoUrl }}" target="_blank" class="border rounded-3 p-1 bg-light text-center text-decoration-none" style="width: 145px;" title="Klik untuk memperbesar">
+                                        <img src="{{ $fotoUrl }}" alt="Foto Bukti" class="img-fluid rounded" style="height: 100px; object-fit: cover;">
                                         <div class="small text-dark fw-semibold mt-1" style="font-size: 0.7rem;">{{ $foto->jenis }}</div>
                                         <div class="text-muted" style="font-size: 0.65rem;">{{ $foto->sumber }}</div>
                                     </a>

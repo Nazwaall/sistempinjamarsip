@@ -1,2 +1,8 @@
 *
 !.gitignore
+!ttd/
+!ttd/*
+!bukti/
+!bukti/*
+!kondisi_arsip/
+!kondisi_arsip/*
