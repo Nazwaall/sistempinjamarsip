@@ -945,12 +945,17 @@
                     </div>
                 </div>
 
-                <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-link text-danger p-1 text-decoration-none" title="Keluar dari Sistem">
-                        <i class="bi bi-box-arrow-right fs-5"></i>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-sm btn-link text-warning p-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalGantiPassword" title="Ganti Password Akun">
+                        <i class="bi bi-key-fill fs-5"></i>
                     </button>
-                </form>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-1 text-decoration-none" title="Keluar dari Sistem">
+                            <i class="bi bi-box-arrow-right fs-5"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         @endauth
     </aside>
@@ -980,6 +985,12 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-xs" id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Mode Gelap / Terang" aria-label="Ganti Tema">
                     <i class="bi bi-moon-stars-fill text-primary" id="themeToggleIcon"></i>
                     <span class="ms-1 small fw-semibold d-none d-sm-inline" id="themeToggleText">Gelap</span>
+                </button>
+
+                <!-- Tombol Ganti Password Topbar -->
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 d-inline-flex align-items-center shadow-xs" data-bs-toggle="modal" data-bs-target="#modalGantiPassword" title="Ganti Password Akun">
+                    <i class="bi bi-key-fill text-warning"></i>
+                    <span class="ms-1 small fw-semibold d-none d-md-inline">Sandi</span>
                 </button>
 
                 <!-- Tombol Panduan Cepat Topbar -->
@@ -1113,7 +1124,79 @@
                 });
             });
         }
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                if (icon) icon.className = 'bi bi-eye';
+            }
+        }
     </script>
+
+    <!-- MODAL GANTI PASSWORD -->
+    @auth
+    <div class="modal fade" id="modalGantiPassword" tabindex="-1" aria-labelledby="modalGantiPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-navy text-white py-3 px-4" style="background: #162660;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-white bg-opacity-10 text-white" style="width: 34px; height: 34px;">
+                            <i class="bi bi-key-fill fs-5"></i>
+                        </span>
+                        <div>
+                            <h6 class="modal-title fw-bold mb-0 text-white" id="modalGantiPasswordLabel">Ganti Password Akun</h6>
+                            <small class="text-white-50" style="font-size: 0.72rem;">Perbarui kata sandi akun {{ Auth::user()->name }}</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('profil.password.update') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-slate-700">Password Saat Ini <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                <input type="password" name="password_lama" id="inputPassLama" class="form-control border-start-0" placeholder="Masukkan password saat ini" required>
+                                <button type="button" class="btn btn-outline-secondary border-start-0" onclick="togglePassVisibility('inputPassLama', this)"><i class="bi bi-eye"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-slate-700">Password Baru <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-shield-lock text-muted"></i></span>
+                                <input type="password" name="password_baru" id="inputPassBaru" class="form-control border-start-0" placeholder="Minimal 6 karakter" required minlength="6">
+                                <button type="button" class="btn btn-outline-secondary border-start-0" onclick="togglePassVisibility('inputPassBaru', this)"><i class="bi bi-eye"></i></button>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Minimal 6 karakter kombinasi huruf dan angka.</small>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold small text-slate-700">Konfirmasi Password Baru <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-shield-check text-muted"></i></span>
+                                <input type="password" name="password_baru_confirmation" id="inputPassKonf" class="form-control border-start-0" placeholder="Ulangi password baru" required minlength="6">
+                                <button type="button" class="btn btn-outline-secondary border-start-0" onclick="togglePassVisibility('inputPassKonf', this)"><i class="bi bi-eye"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3 border-0">
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-navy btn-sm rounded-3 px-4 fw-semibold" style="background: #162660; color: #fff;">
+                            <i class="bi bi-check2-circle me-1"></i> Simpan Password Baru
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endauth
 
     @stack('scripts')
 </body>

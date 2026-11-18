@@ -44,6 +44,7 @@ Route::get('/storage/{path}', function ($path) {
 Route::middleware('auth')->group(function () {
     Route::get('/dasbor', [DasborController::class, 'index'])->name('dasbor');
     Route::get('/panduan', [DasborController::class, 'panduan'])->name('panduan');
+    Route::post('/profil/ganti-password', [AuthController::class, 'updateOwnPassword'])->name('profil.password.update');
 
     // 1. Data Arsip & Impor Excel
     Route::get('/arsip/import', [ArsipController::class, 'showImport'])->name('arsip.import');

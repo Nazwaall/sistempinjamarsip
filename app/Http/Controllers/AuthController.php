@@ -268,4 +268,40 @@ class AuthController extends Controller
             ->withInput($request->only('email'))
             ->withErrors(['email' => 'Token reset password tidak valid atau sudah kedaluwarsa.']);
     }
+
+    public function updateOwnPassword(Request $request)
+    {
+        $request->validate([
+            'password_lama' => ['required', 'string'],
+            'password_baru' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'password_lama.required' => 'Password saat ini wajib diisi.',
+            'password_baru.required' => 'Password baru wajib diisi.',
+            'password_baru.min' => 'Password baru minimal 6 karakter.',
+            'password_baru.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->password_lama, $user->password)) {
+            return back()->withErrors(['password_lama' => 'Password saat ini tidak sesuai.'])->withInput();
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password_baru),
+        ]);
+
+        LogAudit::create([
+            'user_id' => $user->id,
+            'aksi' => 'Ganti Password Akun Sendiri',
+            'entitas' => 'User',
+            'entitas_id' => $user->id,
+            'detail' => [
+                'username' => $user->username,
+                'ip' => $request->ip(),
+            ],
+        ]);
+
+        return back()->with('sukses', 'Password akun Anda berhasil diperbarui!');
+    }
 }
