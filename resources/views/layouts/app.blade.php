@@ -663,6 +663,11 @@
                         <span class="nav-text">Log Audit</span>
                     </a>
 
+                    <a href="{{ route('backup.index') }}" class="sidebar-nav-link {{ request()->routeIs('backup.*') ? 'active' : '' }}">
+                        <i class="bi bi-database-fill-down nav-icon"></i>
+                        <span class="nav-text">Backup Database</span>
+                    </a>
+
                     <a href="{{ route('pengaturan.index') }}" class="sidebar-nav-link {{ request()->routeIs('pengaturan.*') ? 'active' : '' }}">
                         <i class="bi bi-sliders nav-icon"></i>
                         <span class="nav-text">Pengaturan & Kop</span>

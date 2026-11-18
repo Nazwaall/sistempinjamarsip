@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArsipController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\DasborController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PeminjamController;
@@ -99,4 +100,9 @@ Route::middleware('auth')->group(function () {
     // 9. Pengaturan Sistem (SuperAdmin)
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
     Route::put('/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+
+    // 10. Cadangan Data & Backup (SuperAdmin)
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::get('/backup/database', [BackupController::class, 'downloadDatabase'])->name('backup.database');
+    Route::get('/backup/audit-log', [BackupController::class, 'downloadAuditLog'])->name('backup.audit-log');
 });
