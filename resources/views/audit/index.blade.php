@@ -79,8 +79,11 @@
             <tbody>
                 @forelse($logs as $log)
                     <tr>
-                        <td class="ps-3 text-muted small">
-                            <i class="bi bi-clock me-1"></i> {{ $log->created_at?->translatedFormat('d F Y, H:i:s') }}
+                        <td class="ps-3 text-muted small text-nowrap">
+                            <i class="bi bi-clock me-1 text-primary"></i>
+                            <span class="audit-time" data-timestamp="{{ $log->created_at?->toISOString() ?? $log->created_at }}">
+                                {{ $log->created_at?->translatedFormat('d F Y, H:i:s') }}
+                            </span>
                         </td>
                         <td>
                             @if($log->user)
@@ -147,9 +150,38 @@
     </div>
 
     @if($logs->hasPages())
-        <div class="card-footer bg-white border-0 py-3">
-            {{ $logs->links() }}
+        <div class="card-footer bg-white border-0 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="small text-muted">
+                Menampilkan <span class="fw-semibold text-slate-800">{{ $logs->firstItem() }}</span> sampai <span class="fw-semibold text-slate-800">{{ $logs->lastItem() }}</span> dari <span class="fw-semibold text-slate-800">{{ $logs->total() }}</span> catatan aktivitas
+            </div>
+            <div class="pagination-wrapper">
+                {{ $logs->links() }}
+            </div>
         </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Konversi dan sesuaikan waktu kejadian persis dengan jam lokal perangkat pengguna
+        document.querySelectorAll('.audit-time').forEach(function (el) {
+            const rawTime = el.getAttribute('data-timestamp');
+            if (!rawTime) return;
+            const date = new Date(rawTime);
+            if (!isNaN(date.getTime())) {
+                el.textContent = new Intl.DateTimeFormat('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(date);
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

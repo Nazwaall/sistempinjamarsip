@@ -557,6 +557,49 @@
         .btn-action-danger:hover { background: #dc2626; color: #ffffff; border-color: #dc2626; }
         .btn-action-success { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
         .btn-action-success:hover { background: #16a34a; color: #ffffff; border-color: #16a34a; }
+
+        /* --- PAGINATION STYLING --- */
+        .pagination {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .page-item .page-link {
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 0.4rem 0.75rem;
+            background: #ffffff;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            text-decoration: none;
+        }
+        .page-item .page-link:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: var(--sipa-navy);
+        }
+        .page-item.active .page-link {
+            background-color: #162660 !important;
+            border-color: #162660 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 4px rgba(22, 38, 96, 0.25);
+        }
+        .page-item.disabled .page-link {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
     </style>
     @stack('styles')
 </head>
