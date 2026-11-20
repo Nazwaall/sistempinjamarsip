@@ -18,6 +18,23 @@
             </div>
 
             <div class="card-body p-4">
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4 shadow-sm border-0 bg-danger-subtle text-danger-emphasis" role="alert">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-exclamation-octagon-fill fs-5 mt-0.5"></i>
+                            <div>
+                                <strong class="d-block mb-1">Peminjaman belum dapat disimpan karena ada isian yang belum sesuai:</strong>
+                                <ul class="mb-0 ps-3 small">
+                                    @foreach ($errors->all() as $err)
+                                        <li>{{ $err }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <form action="{{ route('peminjaman.store') }}" method="POST" id="formPeminjaman" enctype="multipart/form-data">
                     @csrf
 
@@ -285,13 +302,13 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small fw-semibold">Tanggal Kembali (Jatuh Tempo) <span class="text-danger">*</span></label>
-                                <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control @error('tanggal_kembali') is-invalid @enderror" value="{{ old('tanggal_kembali', date('Y-m-d', strtotime('+7 days'))) }}" required onchange="hitungLamaPinjam()">
+                                <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control @error('tanggal_kembali') is-invalid @enderror" value="{{ old('tanggal_kembali', date('Y-m-d', strtotime('+' . ($unit->lama_pinjam_standar ?: 7) . ' days'))) }}" required onchange="hitungLamaPinjam()">
                                 @error('tanggal_kembali') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small fw-semibold">Durasi Peminjaman</label>
                                 <div class="input-group">
-                                    <input type="text" id="lamaPinjamTampil" class="form-control bg-white fw-bold text-primary" readonly value="8 Hari">
+                                    <input type="text" id="lamaPinjamTampil" class="form-control bg-white fw-bold text-primary" readonly value="{{ $unit->lama_pinjam_standar ?: 7 }} Hari">
                                     <span class="input-group-text bg-white small text-muted" id="badgeMaxHariText">Maks. {{ $unit->lama_pinjam_maks }} Hari</span>
                                 </div>
                                 <div id="pesanValidasiDurasi" class="text-danger small mt-1 d-none">Lama pinjam melebihi batas {{ $unit->lama_pinjam_maks }} hari!</div>
@@ -429,10 +446,9 @@
                     <!-- IDENTITAS PETUGAS LAYANAN (PENANDA TANGAN SURAT) -->
                     @php
                         $authUser = Auth::user();
-                        $isGenericSuperAdmin = strcasecmp(trim((string) $authUser->name), 'Super Admin SIPA') === 0;
-                        $defaultPetugasNama = old('petugas_layanan_nama', $isGenericSuperAdmin ? '' : $authUser->name);
-                        $defaultPetugasNip = old('petugas_layanan_nip', $isGenericSuperAdmin ? '' : ($authUser->nip ?? ''));
-                        $defaultPetugasBidang = old('petugas_layanan_bidang', $authUser->unitPengolah?->nama ?? '');
+                        $defaultPetugasNama = old('petugas_layanan_nama', $authUser->name);
+                        $defaultPetugasNip = old('petugas_layanan_nip', $authUser->nip ?: '-');
+                        $defaultPetugasBidang = old('petugas_layanan_bidang', $authUser->unitPengolah?->nama ?: ($units->first()->nama ?? 'Bidang Kearsipan'));
                     @endphp
                     <div class="mb-4 p-3 bg-white rounded-3 border border-primary-subtle shadow-sm">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
@@ -461,25 +477,25 @@
 
                         <div class="row g-3">
                             <div class="col-12 col-md-5">
-                                <label for="petugas_layanan_nama" class="form-label small fw-semibold">Nama Petugas yang Melayani <span class="text-danger">*</span></label>
+                                <label for="petugas_layanan_nama" class="form-label small fw-semibold">Nama Petugas yang Melayani</label>
                                 <input type="text" name="petugas_layanan_nama" id="petugas_layanan_nama"
                                     class="form-control @error('petugas_layanan_nama') is-invalid @enderror"
-                                    placeholder="Masukkan nama lengkap petugas (bukan Super Admin SIPA)"
-                                    value="{{ $defaultPetugasNama }}" required>
+                                    placeholder="Masukkan nama petugas layanan"
+                                    value="{{ $defaultPetugasNama }}">
                                 @error('petugas_layanan_nama') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-12 col-md-3">
-                                <label for="petugas_layanan_nip" class="form-label small fw-semibold">NIP Petugas <span class="text-danger">*</span></label>
+                                <label for="petugas_layanan_nip" class="form-label small fw-semibold">NIP Petugas</label>
                                 <input type="text" name="petugas_layanan_nip" id="petugas_layanan_nip"
                                     class="form-control @error('petugas_layanan_nip') is-invalid @enderror"
-                                    placeholder="Contoh: 198805202010012003"
-                                    value="{{ $defaultPetugasNip }}" required>
+                                    placeholder="Contoh: 198805202010012003 atau -"
+                                    value="{{ $defaultPetugasNip }}">
                                 <div class="form-text" style="font-size: 0.72rem;">Isi <code>-</code> jika non-ASN.</div>
                                 @error('petugas_layanan_nip') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-12 col-md-4">
-                                <label for="petugas_layanan_bidang" class="form-label small fw-semibold">Dari Bidang <span class="text-danger">*</span></label>
-                                <select name="petugas_layanan_bidang" id="petugas_layanan_bidang" class="form-select @error('petugas_layanan_bidang') is-invalid @enderror" required>
+                                <label for="petugas_layanan_bidang" class="form-label small fw-semibold">Dari Bidang</label>
+                                <select name="petugas_layanan_bidang" id="petugas_layanan_bidang" class="form-select @error('petugas_layanan_bidang') is-invalid @enderror">
                                     <option value="">-- Pilih Bidang Petugas --</option>
                                     @foreach ($units as $u)
                                         <option value="{{ $u->nama }}" {{ $defaultPetugasBidang === $u->nama ? 'selected' : '' }}>
@@ -1258,17 +1274,21 @@
 
     // --- 4. PERHITUNGAN LAMA PINJAM ---
     function hitungLamaPinjam() {
-        const mulai = new Date(document.getElementById('tanggal_mulai').value);
-        const kembali = new Date(document.getElementById('tanggal_kembali').value);
+        const mulaiInput = document.getElementById('tanggal_mulai');
+        const kembaliInput = document.getElementById('tanggal_kembali');
+        if (!mulaiInput || !kembaliInput || !mulaiInput.value || !kembaliInput.value) return;
+
+        const mulai = new Date(mulaiInput.value);
+        const kembali = new Date(kembaliInput.value);
         const maxHari = getSelectedMaxHari();
-        if (mulai && kembali && kembali >= mulai) {
+        if (kembali >= mulai) {
             const diffTime = Math.abs(kembali - mulai);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            const diffDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
             document.getElementById('lamaPinjamTampil').value = diffDays + ' Hari';
 
             const pesan = document.getElementById('pesanValidasiDurasi');
             if (pesan) {
-                pesan.textContent = `Lama pinjam melebihi batas ${maxHari} hari!`;
+                pesan.textContent = `Lama pinjam (${diffDays} hari) melebihi batas maksimal bidang (${maxHari} hari)!`;
                 pesan.classList.toggle('d-none', diffDays <= maxHari);
             }
         }
@@ -1612,7 +1632,52 @@
     document.getElementById('formPeminjaman').addEventListener('submit', function (e) {
         if (listArsipTerpilih.length === 0) {
             e.preventDefault();
-            alert('Harap pilih minimal satu berkas arsip yang akan dipinjam.');
+            alert('Harap pilih minimal satu berkas arsip yang akan dimasukkan ke surat peminjaman.');
+            document.getElementById('cariArsipInput')?.focus();
+            return false;
+        }
+
+        const tipePeminjam = document.querySelector('input[name="tipe_peminjam"]:checked')?.value || 'terdaftar';
+        if (tipePeminjam === 'terdaftar') {
+            const peminjamVal = document.getElementById('peminjam_id')?.value;
+            if (!peminjamVal) {
+                e.preventDefault();
+                alert('Harap pilih nama peminjam terdaftar terlebih dahulu, atau ubah opsi ke "Catat Peminjam Baru".');
+                document.getElementById('peminjam_id')?.focus();
+                return false;
+            }
+        } else {
+            const namaBaru = document.querySelector('input[name="nama_peminjam"]')?.value.trim();
+            const hpBaru = document.querySelector('input[name="no_hp"]')?.value.trim();
+            const instansiBaru = document.querySelector('input[name="instansi_unit"]')?.value.trim();
+            if (!namaBaru || !hpBaru || !instansiBaru) {
+                e.preventDefault();
+                alert('Harap lengkapi Identitas Peminjam Baru (Nama Lengkap, Nomor HP, dan Instansi/Unit Kerja).');
+                return false;
+            }
+        }
+
+        const mulaiVal = document.getElementById('tanggal_mulai')?.value;
+        const kembaliVal = document.getElementById('tanggal_kembali')?.value;
+        if (!mulaiVal || !kembaliVal) {
+            e.preventDefault();
+            alert('Tanggal mulai dan tanggal kembali (jatuh tempo) wajib diisi.');
+            return false;
+        }
+
+        const tglMulai = new Date(mulaiVal);
+        const tglKembali = new Date(kembaliVal);
+        if (tglKembali < tglMulai) {
+            e.preventDefault();
+            alert('Tanggal pengembalian (jatuh tempo) tidak boleh mendahului tanggal mulai pinjam.');
+            return false;
+        }
+
+        const maxHari = getSelectedMaxHari();
+        const diffDays = Math.max(1, Math.round(Math.abs(tglKembali - tglMulai) / (1000 * 60 * 60 * 24)));
+        if (diffDays > maxHari) {
+            e.preventDefault();
+            alert(`Lama pinjam (${diffDays} hari) melebihi batas maksimal bidang ini (${maxHari} hari). Harap sesuaikan tanggal pengembalian.`);
             return false;
         }
 
@@ -1628,6 +1693,13 @@
         if (!ttdInput.value) {
             const ttdManualRadio = document.getElementById('ttd_manual');
             if (ttdManualRadio) ttdManualRadio.checked = true;
+        }
+
+        // Berikan visual loading pada tombol submit agar tidak terjadi double submit
+        const btnSubmit = document.getElementById('btnSubmitSurat');
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan Surat...';
         }
     });
 

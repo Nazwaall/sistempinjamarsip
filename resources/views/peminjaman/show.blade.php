@@ -326,16 +326,28 @@
                         @if ($peminjaman->metode_ttd === 'Digital' && $peminjaman->ttd_peminjam_path)
                             @php
                                 $rawTtd = $peminjaman->ttd_peminjam_path;
+                                $ttdUrl = null;
                                 if (str_starts_with($rawTtd, 'data:') || str_starts_with($rawTtd, 'http')) {
                                     $ttdUrl = $rawTtd;
                                 } else {
                                     $cleanTtd = ltrim(preg_replace('#^(public/|storage/)+#', '', $rawTtd), '/');
-                                    $ttdUrl = url('/storage/' . $cleanTtd);
+                                    $pt1 = storage_path('app/public/' . $cleanTtd);
+                                    $pt2 = public_path('storage/' . $cleanTtd);
+                                    if (file_exists($pt1) && is_file($pt1) && filesize($pt1) > 0) {
+                                        $mime = @mime_content_type($pt1) ?: 'image/png';
+                                        $ttdUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($pt1));
+                                    } elseif (file_exists($pt2) && is_file($pt2) && filesize($pt2) > 0) {
+                                        $mime = @mime_content_type($pt2) ?: 'image/png';
+                                        $ttdUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($pt2));
+                                    } else {
+                                        $ttdUrl = url('/storage/' . $cleanTtd);
+                                    }
                                 }
+                                $svgTtdFallback = 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="260" height="90" viewBox="0 0 260 90"><rect width="100%" height="100%" fill="#f8fafc" rx="8"/><path d="M25 55 Q55 15 85 50 T135 45 T185 55 T235 40" fill="none" stroke="#162660" stroke-width="2.5" stroke-linecap="round"/><text x="130" y="80" font-family="sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Tanda Tangan Digital Terverifikasi</text></svg>');
                             @endphp
                             <div class="border rounded-3 p-3 bg-white text-center shadow-xs" style="max-width: 280px;">
                                 <img src="{{ $ttdUrl }}" alt="Tanda Tangan Digital" class="img-fluid" style="max-height: 100px; max-width: 100%; object-fit: contain;"
-                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'240\' height=\'90\' viewBox=\'0 0 240 90\'><rect width=\'100%\' height=\'100%\' fill=\'%23f8fafc\' rx=\'6\'/><path d=\'M20 55 Q50 15 80 50 T130 45 T180 55 T220 40\' fill=\'none\' stroke=\'%23162660\' stroke-width=\'2.5\' stroke-linecap=\'round\'/><text x=\'120\' y=\'80\' font-family=\'sans-serif\' font-size=\'10\' fill=\'%2364748b\' text-anchor=\'middle\'>Tanda Tangan Digital Terverifikasi</text></svg>';">
+                                    onerror="this.onerror=null; this.src='{{ $svgTtdFallback }}';">
                                 <div class="border-top pt-1 mt-2 small fw-semibold text-slate-800">{{ $peminjaman->peminjam->nama }}</div>
                                 <small class="text-muted" style="font-size: 0.7rem;">Ditandatangani digital di layar</small>
                             </div>
@@ -372,16 +384,28 @@
                                 @foreach ($peminjaman->buktiFoto as $foto)
                                     @php
                                         $rawFoto = $foto->file_path;
+                                        $fotoUrl = null;
                                         if (str_starts_with($rawFoto, 'data:') || str_starts_with($rawFoto, 'http')) {
                                             $fotoUrl = $rawFoto;
                                         } else {
                                             $cleanFoto = ltrim(preg_replace('#^(public/|storage/)+#', '', $rawFoto), '/');
-                                            $fotoUrl = url('/storage/' . $cleanFoto);
+                                            $pf1 = storage_path('app/public/' . $cleanFoto);
+                                            $pf2 = public_path('storage/' . $cleanFoto);
+                                            if (file_exists($pf1) && is_file($pf1) && filesize($pf1) > 0) {
+                                                $mime = @mime_content_type($pf1) ?: 'image/jpeg';
+                                                $fotoUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($pf1));
+                                            } elseif (file_exists($pf2) && is_file($pf2) && filesize($pf2) > 0) {
+                                                $mime = @mime_content_type($pf2) ?: 'image/jpeg';
+                                                $fotoUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($pf2));
+                                            } else {
+                                                $fotoUrl = url('/storage/' . $cleanFoto);
+                                            }
                                         }
+                                        $fotoFallback = 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="0 0 120 100"><rect width="100%" height="100%" fill="#f1f5f9"/><text x="60" y="55" font-family="sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">Foto Terlampir</text></svg>');
                                     @endphp
                                     <a href="{{ $fotoUrl }}" target="_blank" class="border rounded-3 p-1 bg-white text-center text-decoration-none shadow-xs" style="width: 145px;" title="Klik untuk memperbesar">
                                         <img src="{{ $fotoUrl }}" alt="Foto Bukti" class="img-fluid rounded" style="height: 100px; object-fit: cover;"
-                                            onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'100\' viewBox=\'0 0 120 100\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'60\' y=\'55\' font-family=\'sans-serif\' font-size=\'11\' fill=\'%2394a3b8\' text-anchor=\'middle\'>Foto Terlampir</text></svg>';">
+                                            onerror="this.onerror=null; this.src='{{ $fotoFallback }}';">
                                         <div class="small text-dark fw-semibold mt-1" style="font-size: 0.7rem;">{{ $foto->jenis }}</div>
                                         <div class="text-muted" style="font-size: 0.65rem;">{{ $foto->sumber }}</div>
                                     </a>

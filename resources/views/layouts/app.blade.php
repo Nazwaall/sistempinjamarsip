@@ -435,8 +435,8 @@
             background: linear-gradient(135deg, #10193b 0%, #162660 60%, #1e3a8a 100%);
             color: #ffffff;
             border-radius: 18px;
-            padding: 1.4rem 1.75rem;
-            box-shadow: 0 12px 28px rgba(22, 38, 96, 0.18);
+            padding: 1.35rem 1.6rem;
+            box-shadow: 0 10px 25px rgba(22, 38, 96, 0.18);
             position: relative;
             overflow: hidden;
         }
@@ -447,14 +447,14 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        @media (max-width: 767.98px) {
+        @media (max-width: 991.98px) {
             .sipa-cta-banner {
-                padding: 1.25rem 1.25rem;
+                padding: 1.25rem;
             }
             .sipa-cta-banner .cta-btn-wrap {
                 justify-content: flex-start;
                 width: 100%;
-                margin-top: 0.5rem;
+                margin-top: 0.25rem;
             }
         }
         @media (max-width: 575.98px) {
@@ -836,6 +836,24 @@
                 <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-3 border-0 bg-danger-subtle text-danger-emphasis" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2 fs-5 align-middle"></i>
                     <strong>Peringatan!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            <!-- Alert Notifikasi Validasi Form -->
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-3 border-0 bg-danger-subtle text-danger-emphasis" role="alert">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-exclamation-octagon-fill me-2 fs-5 mt-0.5"></i>
+                        <div>
+                            <strong>Formulir belum dapat disimpan:</strong>
+                            <ul class="mb-0 ps-3 mt-1 small">
+                                @foreach ($errors->all() as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif

@@ -102,7 +102,7 @@ class PeminjamanController extends Controller
             'tipe_peminjam' => 'required|in:terdaftar,baru',
             'tanggal_mulai' => 'required|date',
             'tanggal_kembali' => 'required|date|after_or_equal:tanggal_mulai',
-            'maksud_keperluan' => 'required|string|min:5',
+            'maksud_keperluan' => 'required|string|min:2',
             'jaminan_opsi' => 'nullable|string|max:100',
             'jaminan_lainnya' => 'nullable|string|max:100',
             'jaminan' => 'nullable|string|max:100',
@@ -110,6 +110,13 @@ class PeminjamanController extends Controller
             'petugas_layanan_nama' => 'nullable|string|max:150',
             'petugas_layanan_nip' => 'nullable|string|max:30',
             'petugas_layanan_bidang' => 'nullable|string|max:150',
+        ], [
+            'arsip_ids.required' => 'Harap pilih minimal satu berkas arsip yang akan dipinjam.',
+            'arsip_ids.min' => 'Harap pilih minimal satu berkas arsip yang akan dipinjam.',
+            'tanggal_mulai.required' => 'Tanggal mulai peminjaman wajib diisi.',
+            'tanggal_kembali.required' => 'Tanggal pengembalian (jatuh tempo) wajib diisi.',
+            'tanggal_kembali.after_or_equal' => 'Tanggal kembali harus sama atau sesudah tanggal mulai.',
+            'maksud_keperluan.required' => 'Maksud / keperluan peminjaman wajib diisi.',
         ]);
 
         $selectedUnitId = $request->input('unit_pengolah_id') ?: $user->unit_pengolah_id;
@@ -117,20 +124,18 @@ class PeminjamanController extends Controller
             ?: ($user->unitPengolah ?: UnitPengolah::where('kode', 'ARS')->firstOrFail());
 
         $petugasLayanan = $this->resolvePetugasLayanan($request, $user, $unit);
-        if (isset($petugasLayanan['error'])) {
-            return back()->withErrors(['petugas_layanan_nama' => $petugasLayanan['error']])->withInput();
-        }
 
         $jaminanInput = $this->resolveJaminan($request);
         $bentukLayanan = $request->input('bentuk_layanan', 'Fisik');
 
-        // Cek batas maksimum peminjaman
+        // Cek batas maksimum peminjaman (dihitung selisih hari peminjaman)
         $tglMulai = Carbon::parse($request->tanggal_mulai);
         $tglKembali = Carbon::parse($request->tanggal_kembali);
-        $durasiHari = $tglMulai->diffInDays($tglKembali) + 1;
+        $durasiHari = max(1, (int) $tglMulai->diffInDays($tglKembali));
 
-        if ($durasiHari > $unit->lama_pinjam_maks) {
-            return back()->withErrors(['tanggal_kembali' => "Lama pinjam tidak boleh melebihi {$unit->lama_pinjam_maks} hari."])->withInput();
+        $maxBatas = max(1, (int) $unit->lama_pinjam_maks);
+        if ($durasiHari > $maxBatas) {
+            return back()->withErrors(['tanggal_kembali' => "Lama pinjam ({$durasiHari} hari) melebihi batas maksimal bidang {$unit->nama} ({$maxBatas} hari)."])->withInput();
         }
 
         // Cek kelayakan & ketersediaan arsip sesuai bentuk layanan
@@ -213,6 +218,13 @@ class PeminjamanController extends Controller
                 if ($decoded !== false && strlen($decoded) > 100) {
                     $filename = 'ttd_' . Str::uuid() . '.png';
                     Storage::disk('public')->put("ttd/{$filename}", $decoded);
+                    try {
+                        $pubDir = public_path('storage/ttd');
+                        if (!file_exists($pubDir)) {
+                            @mkdir($pubDir, 0777, true);
+                        }
+                        @file_put_contents($pubDir . '/' . $filename, $decoded);
+                    } catch (\Throwable $e) {}
                     $ttdPath = "ttd/{$filename}";
                     $metodeTtd = 'Digital';
                 }
@@ -779,20 +791,14 @@ class PeminjamanController extends Controller
         $nipInput = trim((string) $request->input('petugas_layanan_nip', ''));
         $bidangInput = trim((string) $request->input('petugas_layanan_bidang', ''));
 
-        $isGenericSuperAdmin = strcasecmp(trim((string) $user->name), 'Super Admin SIPA') === 0;
-
-        if ($isGenericSuperAdmin && ($namaInput === '' || strcasecmp($namaInput, 'Super Admin SIPA') === 0)) {
-            return ['error' => 'Harap isi nama petugas yang melayani (bukan Super Admin SIPA).'];
-        }
-
-        if ($namaInput !== '' && strcasecmp($namaInput, 'Super Admin SIPA') === 0) {
-            return ['error' => 'Nama petugas layanan tidak boleh menggunakan "Super Admin SIPA".'];
-        }
+        $namaFinal = $namaInput !== '' ? $namaInput : $user->name;
+        $nipFinal = $nipInput !== '' ? $nipInput : ($user->nip ?: '-');
+        $bidangFinal = $bidangInput !== '' ? $bidangInput : ($user->unitPengolah?->nama ?: $unit->nama);
 
         return [
-            'nama' => $namaInput !== '' ? $namaInput : $user->name,
-            'nip' => $nipInput !== '' ? $nipInput : ($namaInput === '' ? $user->nip : null),
-            'bidang' => $bidangInput !== '' ? $bidangInput : ($user->unitPengolah?->nama ?: $unit->nama),
+            'nama' => $namaFinal,
+            'nip' => $nipFinal,
+            'bidang' => $bidangFinal,
         ];
     }
 

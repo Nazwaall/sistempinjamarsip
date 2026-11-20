@@ -415,20 +415,23 @@
 
 <!-- 6. BANNER CTA PENUTUP NAVY GELAP -->
 <div class="sipa-cta-banner mb-4">
-    <div class="row align-items-center g-3">
-        <div class="col-12 col-md-7 col-lg-8">
-            <h5 class="fw-bold mb-1.5 text-white">Siap Memproses Layanan Peminjaman Arsip Hari Ini?</h5>
-            <p class="mb-0 text-white-50 small" style="max-width: 620px; line-height: 1.5;">Catat peminjaman, lihat detail uraian berkas, dan terbitkan surat resmi beserta TTD petugas layanan.</p>
-        </div>
-        <div class="col-12 col-md-5 col-lg-4">
-            <div class="cta-btn-wrap">
-                <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-3 px-3 py-2 fw-semibold text-center text-nowrap">
-                    <i class="bi bi-compass me-1"></i> Pelajari Alur
-                </a>
-                <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-dark fw-bold rounded-3 px-3.5 py-2 text-center text-nowrap shadow-sm">
-                    Buat Peminjaman Baru <i class="bi bi-arrow-right ms-1"></i>
-                </a>
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="pastel-icon-circle bg-white bg-opacity-10 text-white flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.4rem;">
+                <i class="bi bi-file-earmark-check"></i>
             </div>
+            <div>
+                <h5 class="fw-bold mb-1 text-white">Siap Memproses Layanan Peminjaman Arsip Hari Ini?</h5>
+                <p class="mb-0 text-white-50 small" style="line-height: 1.5;">Catat peminjaman, lihat detail uraian berkas, dan terbitkan surat resmi beserta TTD petugas layanan.</p>
+            </div>
+        </div>
+        <div class="cta-btn-wrap flex-shrink-0">
+            <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-pill px-3 py-2 fw-semibold text-center text-nowrap">
+                <i class="bi bi-compass me-1"></i> Pelajari Alur
+            </a>
+            <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-primary fw-bold rounded-pill px-3.5 py-2 text-center text-nowrap shadow-sm">
+                Buat Peminjaman Baru <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
     </div>
 </div>
