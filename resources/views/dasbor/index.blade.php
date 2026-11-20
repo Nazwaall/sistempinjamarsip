@@ -414,18 +414,22 @@
 </div>
 
 <!-- 6. BANNER CTA PENUTUP NAVY GELAP -->
-<div class="sipa-cta-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 overflow-hidden">
-    <div>
-        <h5 class="fw-bold mb-1 text-white">Siap Memproses Layanan Peminjaman Arsip Hari Ini?</h5>
-        <p class="mb-0 text-white-50 small">Catat peminjaman, lihat detail uraian berkas, dan terbitkan surat resmi beserta TTD petugas layanan.</p>
-    </div>
-    <div class="d-flex flex-column flex-sm-row gap-2 flex-shrink-0 w-100 w-md-auto mt-2 mt-md-0">
-        <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-3 px-3 py-2 fw-semibold text-center w-100 w-sm-auto touch-target">
-            <i class="bi bi-compass me-1"></i> Pelajari Alur
-        </a>
-        <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-dark fw-bold rounded-3 px-4 py-2 text-center shadow-sm w-100 w-sm-auto touch-target">
-            Buat Peminjaman Baru <i class="bi bi-arrow-right ms-1"></i>
-        </a>
+<div class="sipa-cta-banner mb-4">
+    <div class="row align-items-center g-3">
+        <div class="col-12 col-md-7 col-lg-8">
+            <h5 class="fw-bold mb-1.5 text-white">Siap Memproses Layanan Peminjaman Arsip Hari Ini?</h5>
+            <p class="mb-0 text-white-50 small" style="max-width: 620px; line-height: 1.5;">Catat peminjaman, lihat detail uraian berkas, dan terbitkan surat resmi beserta TTD petugas layanan.</p>
+        </div>
+        <div class="col-12 col-md-5 col-lg-4">
+            <div class="cta-btn-wrap">
+                <a href="{{ route('panduan') }}" class="btn btn-outline-light rounded-3 px-3 py-2 fw-semibold text-center text-nowrap">
+                    <i class="bi bi-compass me-1"></i> Pelajari Alur
+                </a>
+                <a href="{{ route('peminjaman.create') }}" class="btn btn-light text-dark fw-bold rounded-3 px-3.5 py-2 text-center text-nowrap shadow-sm">
+                    Buat Peminjaman Baru <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 

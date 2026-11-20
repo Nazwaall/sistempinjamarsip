@@ -437,6 +437,36 @@
             border-radius: 18px;
             padding: 1.4rem 1.75rem;
             box-shadow: 0 12px 28px rgba(22, 38, 96, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+        .sipa-cta-banner .cta-btn-wrap {
+            display: flex;
+            gap: 0.65rem;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 767.98px) {
+            .sipa-cta-banner {
+                padding: 1.25rem 1.25rem;
+            }
+            .sipa-cta-banner .cta-btn-wrap {
+                justify-content: flex-start;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+        @media (max-width: 575.98px) {
+            .sipa-cta-banner .cta-btn-wrap {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .sipa-cta-banner .cta-btn-wrap .btn {
+                width: 100% !important;
+                display: block;
+                text-align: center;
+            }
         }
         .pastel-icon-circle {
             width: 48px;
