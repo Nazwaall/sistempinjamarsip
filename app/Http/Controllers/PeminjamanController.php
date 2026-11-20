@@ -316,6 +316,201 @@ class PeminjamanController extends Controller
         return view('peminjaman.show', compact('peminjaman'));
     }
 
+    public function edit(SuratPeminjaman $peminjaman)
+    {
+        $user = Auth::user();
+        if (!$peminjaman->dapatDiaksesOleh($user)) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah surat peminjaman ini.');
+        }
+
+        $peminjaman->load(['peminjam', 'unitPengolah', 'items.arsip']);
+
+        $arsipQuery = Arsip::with('unitPengolah')
+            ->where('aktif', true)
+            ->where('status_ketersediaan', '!=', 'Hilang');
+
+        $unitId = $user->unit_pengolah_id;
+        if ($unitId && !$user->isSuperAdmin()) {
+            $arsipQuery->where('unit_pengolah_id', $unitId);
+        }
+
+        $currentArsipIds = $peminjaman->items->pluck('arsip_id')->toArray();
+        $arsipQuery->where(function ($q) use ($currentArsipIds) {
+            $q->where('status_ketersediaan', 'Tersedia')
+              ->orWhereIn('id', $currentArsipIds);
+        });
+
+        $arsipTersedia = $arsipQuery->orderBy('tahun', 'desc')->get();
+        $peminjamList = Peminjam::orderBy('nama', 'asc')->get();
+        $units = UnitPengolah::where('aktif', true)->orderBy('id')->get();
+
+        return view('peminjaman.edit', compact('peminjaman', 'arsipTersedia', 'peminjamList', 'units', 'currentArsipIds'));
+    }
+
+    public function update(Request $request, SuratPeminjaman $peminjaman)
+    {
+        $user = Auth::user();
+        if (!$peminjaman->dapatDiaksesOleh($user)) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah surat peminjaman ini.');
+        }
+
+        $request->validate([
+            'peminjam_id' => 'required|exists:peminjam,id',
+            'unit_pengolah_id' => 'required|exists:unit_pengolah,id',
+            'bentuk_layanan' => 'required|string|in:Fisik,Digital (PDF),Layanan Informasi',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_kembali' => 'required|date|after_or_equal:tanggal_mulai',
+            'maksud_keperluan' => 'required|string',
+            'jaminan' => 'nullable|string|max:100',
+            'status' => 'required|in:Menunggu Persetujuan,Janjian,Aktif,Selesai,Ditolak,Dibatalkan',
+            'rencana_ambil_pada' => 'nullable|date',
+            'catatan_janjian' => 'nullable|string|max:255',
+            'arsip_ids' => 'required|array|min:1',
+            'arsip_ids.*' => 'exists:arsip,id',
+            'petugas_layanan_nama' => 'nullable|string|max:150',
+            'petugas_layanan_nip' => 'nullable|string|max:30',
+            'petugas_layanan_bidang' => 'nullable|string|max:100',
+        ], [
+            'arsip_ids.required' => 'Pilih minimal 1 berkas arsip yang dipinjam.',
+            'arsip_ids.min' => 'Pilih minimal 1 berkas arsip yang dipinjam.',
+            'tanggal_kembali.after_or_equal' => 'Tanggal kembali harus sama atau setelah tanggal mulai.',
+        ]);
+
+        $tglMulai = Carbon::parse($request->tanggal_mulai);
+        $tglKembali = Carbon::parse($request->tanggal_kembali);
+        $durasiHari = max(1, $tglMulai->diffInDays($tglKembali));
+
+        DB::beginTransaction();
+        try {
+            $oldStatus = $peminjaman->status;
+            $newStatus = $request->status;
+
+            $statusPersetujuan = match ($newStatus) {
+                'Aktif', 'Janjian', 'Selesai' => 'Disetujui',
+                'Ditolak' => 'Ditolak',
+                'Dibatalkan' => 'Dibatalkan',
+                default => 'Menunggu',
+            };
+
+            $peminjaman->update([
+                'peminjam_id' => $request->peminjam_id,
+                'unit_pengolah_id' => $request->unit_pengolah_id,
+                'bentuk_layanan' => $request->bentuk_layanan,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_kembali' => $request->tanggal_kembali,
+                'lama_pinjam_hari' => $durasiHari,
+                'maksud_keperluan' => $request->maksud_keperluan,
+                'jaminan' => $request->jaminan,
+                'status' => $newStatus,
+                'status_persetujuan' => $statusPersetujuan,
+                'is_janjian' => $newStatus === 'Janjian',
+                'rencana_ambil_pada' => $newStatus === 'Janjian' ? $request->rencana_ambil_pada : null,
+                'catatan_janjian' => $newStatus === 'Janjian' ? $request->catatan_janjian : null,
+                'petugas_layanan_nama' => $request->petugas_layanan_nama ?: $peminjaman->petugas_layanan_nama,
+                'petugas_layanan_nip' => $request->petugas_layanan_nip ?: $peminjaman->petugas_layanan_nip,
+                'petugas_layanan_bidang' => $request->petugas_layanan_bidang ?: $peminjaman->petugas_layanan_bidang,
+            ]);
+
+            // Sinkronisasi item arsip
+            $oldArsipIds = $peminjaman->items->pluck('arsip_id')->toArray();
+            $newArsipIds = array_map('intval', $request->arsip_ids);
+
+            $dihapusIds = array_diff($oldArsipIds, $newArsipIds);
+            $ditambahIds = array_diff($newArsipIds, $oldArsipIds);
+
+            if (!empty($dihapusIds)) {
+                SuratPeminjamanItem::where('surat_id', $peminjaman->id)
+                    ->whereIn('arsip_id', $dihapusIds)
+                    ->delete();
+
+                if ($oldStatus === 'Aktif') {
+                    Arsip::whereIn('id', $dihapusIds)->update(['status_ketersediaan' => 'Tersedia']);
+                }
+            }
+
+            if (!empty($ditambahIds)) {
+                foreach ($ditambahIds as $arsipId) {
+                    SuratPeminjamanItem::create([
+                        'surat_id' => $peminjaman->id,
+                        'arsip_id' => $arsipId,
+                        'kondisi_keluar' => 'Baik',
+                    ]);
+                }
+            }
+
+            // Atur status ketersediaan arsip berdasarkan status peminjaman terkini
+            if ($newStatus === 'Aktif' && $peminjaman->isFisik()) {
+                Arsip::whereIn('id', $newArsipIds)->update(['status_ketersediaan' => 'Dipinjam']);
+            } elseif (in_array($newStatus, ['Selesai', 'Ditolak', 'Dibatalkan', 'Menunggu Persetujuan', 'Janjian'])) {
+                Arsip::whereIn('id', $newArsipIds)->update(['status_ketersediaan' => 'Tersedia']);
+            }
+
+            LogAudit::create([
+                'user_id' => $user->id,
+                'aksi' => 'Ubah Surat Peminjaman',
+                'entitas' => 'SuratPeminjaman',
+                'entitas_id' => $peminjaman->id,
+                'detail' => [
+                    'nomor_surat' => $peminjaman->nomor_surat,
+                    'status_lama' => $oldStatus,
+                    'status_baru' => $newStatus,
+                    'jumlah_arsip' => count($newArsipIds),
+                ],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('peminjaman.show', $peminjaman)->with('sukses', "Surat Peminjaman {$peminjaman->nomor_surat} berhasil diperbarui.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui surat peminjaman: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function destroy(SuratPeminjaman $peminjaman)
+    {
+        $user = Auth::user();
+        if (!$peminjaman->dapatDiaksesOleh($user)) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus surat peminjaman ini.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $nomorSurat = $peminjaman->nomor_surat;
+            $arsipIds = $peminjaman->items->pluck('arsip_id')->toArray();
+
+            // Kembalikan ketersediaan arsip jika surat masih berstatus Aktif
+            if ($peminjaman->status === 'Aktif' && !empty($arsipIds)) {
+                Arsip::whereIn('id', $arsipIds)->update(['status_ketersediaan' => 'Tersedia']);
+            }
+
+            // Hapus relasi
+            $peminjaman->items()->delete();
+            $peminjaman->buktiFoto()->delete();
+            $peminjaman->perpanjangan()->delete();
+
+            // Hapus surat
+            $peminjaman->delete();
+
+            LogAudit::create([
+                'user_id' => $user->id,
+                'aksi' => 'Hapus Surat Peminjaman',
+                'entitas' => 'SuratPeminjaman',
+                'entitas_id' => $peminjaman->id,
+                'detail' => [
+                    'nomor_surat' => $nomorSurat,
+                ],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('peminjaman.index')->with('sukses', "Surat peminjaman {$nomorSurat} berhasil dihapus dari sistem.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus surat peminjaman: ' . $e->getMessage());
+        }
+    }
+
     // Persetujuan oleh Super Admin / Kepala Bidang (FR-17, FR-39)
     public function setujui(Request $request, SuratPeminjaman $peminjaman)
     {

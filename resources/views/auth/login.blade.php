@@ -30,7 +30,7 @@
             overflow: hidden;
         }
         .touch-input {
-            font-size: 16px; /* Mencegah auto-zoom di iPhone */
+            font-size: 16px; 
             min-height: 48px;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }

@@ -139,9 +139,19 @@
                                             <a href="{{ route('peminjaman.show', $p) }}" class="btn-action-pill btn-action-primary" title="Detail Surat Peminjaman">
                                                 <i class="bi bi-eye"></i> Detail
                                             </a>
+                                            <a href="{{ route('peminjaman.edit', $p) }}" class="btn-action btn-action-warning" title="Edit Surat Peminjaman">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
                                             <a href="{{ route('peminjaman.pdf', $p) }}" class="btn-action btn-action-danger" title="Unduh Surat PDF">
                                                 <i class="bi bi-file-earmark-pdf"></i>
                                             </a>
+                                            <form action="{{ route('peminjaman.destroy', $p) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus surat peminjaman {{ $p->nomor_surat }}? Berkas arsip terkait akan dikembalikan ke status Tersedia.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-action btn-action-danger" title="Hapus Surat Peminjaman">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -173,13 +183,23 @@
                                     <br><span class="text-info-emphasis">Jaminan: {{ $p->jaminan ?: $p->peminjam->jaminan }}</span>
                                 @endif
                             </div>
-                            <div class="d-flex justify-content-end gap-2 border-top pt-2">
-                                <a href="{{ route('peminjaman.show', $p) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <div class="d-flex justify-content-end gap-1 flex-wrap border-top pt-2">
+                                <a href="{{ route('peminjaman.show', $p) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1" style="font-size: 0.78rem;">
                                     <i class="bi bi-eye me-1"></i> Detail
                                 </a>
-                                <a href="{{ route('peminjaman.pdf', $p) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                <a href="{{ route('peminjaman.edit', $p) }}" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-1 text-dark" style="font-size: 0.78rem;">
+                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                </a>
+                                <a href="{{ route('peminjaman.pdf', $p) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" style="font-size: 0.78rem;">
                                     <i class="bi bi-file-earmark-pdf me-1"></i> PDF
                                 </a>
+                                <form action="{{ route('peminjaman.destroy', $p) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus surat {{ $p->nomor_surat }}? Berkas arsip akan dikembalikan ke status Tersedia.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1" style="font-size: 0.78rem;">
+                                        <i class="bi bi-trash3 me-1"></i> Hapus
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     @endforeach

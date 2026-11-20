@@ -83,21 +83,21 @@
         margin-top: 5px;
     }
     .rank-medal {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         font-weight: 700;
         flex-shrink: 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .rank-top-1 { background: #fef3c7; color: #b45309; border: 1.5px solid #fde68a; }
     .rank-top-2 { background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; }
     .rank-top-3 { background: #ffedd5; color: #c2410c; border: 1.5px solid #fed7aa; }
-    .rank-other { background: #f8fafc; color: #94a3b8; border: 1.5px solid #e2e8f0; }
+    .rank-other { background: #ffffff; color: #94a3b8; border: 1.5px solid #e2e8f0; }
     .line-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -106,7 +106,15 @@
         text-overflow: ellipsis;
     }
     .top-archive-item {
+        border-bottom: 1px solid #f1f5f9 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        background: #ffffff;
         transition: background-color 0.15s ease;
+    }
+    .top-archive-item:last-child {
+        border-bottom: none !important;
     }
     .top-archive-item:hover {
         background-color: #f8faff;
@@ -124,36 +132,46 @@
 @endphp
 
 <div class="row g-3">
+    @php
+        $daftarBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $judulPeriodeStr = !empty($bulan) && isset($daftarBulan[$bulan])
+            ? 'BULAN ' . strtoupper($daftarBulan[$bulan]) . ' TAHUN ' . $tahun
+            : 'TAHUN ' . $tahun;
+    @endphp
+
     <!-- Hero Header & Tombol Ekspor -->
     <div class="col-12">
         <div class="sipa-page-hero d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                    <span class="sipa-kicker mb-0">LAPORAN &amp; REKAPITULASI TAHUNAN</span>
+                    <span class="sipa-kicker mb-0">LAPORAN &amp; REKAPITULASI</span>
                     <span class="badge bg-white text-dark border rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.72rem;">
-                        <i class="bi bi-calendar3 text-primary me-1"></i> Periode {{ $tahun }}
+                        <i class="bi bi-calendar3 text-primary me-1"></i> Periode: {{ !empty($bulan) && isset($daftarBulan[$bulan]) ? $daftarBulan[$bulan] . ' ' . $tahun : 'Tahun ' . $tahun }}
                     </span>
-                    @if ($selectedUnitObj)
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.72rem;">
-                            {{ $selectedUnitObj->nama }}
-                        </span>
-                    @endif
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.72rem;">
+                        <i class="bi bi-building me-1"></i>
+                        Lingkup Bidang: {{ $selectedUnitObj ? $selectedUnitObj->nama . ' (' . $selectedUnitObj->kode . ')' : 'Seluruh Bidang (Tingkat Dinas)' }}
+                    </span>
                 </div>
-                <h3 class="fw-bold mb-1 text-slate-800">Laporan &amp; Rekapitulasi Pemanfaatan Arsip</h3>
+                <h3 class="fw-bold mb-1 text-slate-800">LAPORAN REKAPITULASI PEMINJAMAN &amp; PENGEMBALIAN ARSIP {{ $judulPeriodeStr }}</h3>
                 <p class="mb-0 text-muted small">Pantau tren bulanan, peringkat berkas terpopuler, dan unduh dokumen rekap resmi untuk evaluasi pimpinan.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('laporan.pdf', ['tahun' => $tahun, 'unit_pengolah_id' => request('unit_pengolah_id')]) }}" class="btn btn-navy btn-sm rounded-3 px-3 py-2 shadow-sm d-inline-flex align-items-center">
+                <a href="{{ route('laporan.pdf', ['tahun' => $tahun, 'bulan' => request('bulan'), 'unit_pengolah_id' => request('unit_pengolah_id')]) }}" class="btn btn-navy btn-sm rounded-3 px-3 py-2 shadow-sm d-inline-flex align-items-center">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Ekspor ke PDF (.pdf)
                 </a>
-                <a href="{{ route('laporan.excel', ['tahun' => $tahun, 'unit_pengolah_id' => request('unit_pengolah_id')]) }}" class="btn btn-outline-success btn-sm rounded-3 px-3 py-2 fw-semibold bg-white d-inline-flex align-items-center">
+                <a href="{{ route('laporan.excel', ['tahun' => $tahun, 'bulan' => request('bulan'), 'unit_pengolah_id' => request('unit_pengolah_id')]) }}" class="btn btn-outline-success btn-sm rounded-3 px-3 py-2 fw-semibold bg-white d-inline-flex align-items-center">
                     <i class="bi bi-file-earmark-excel-fill me-1"></i> Ekspor ke Excel (.xlsx)
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Filter Tahun & Bidang -->
+    <!-- Filter Tahun, Bulan & Bidang -->
     <div class="col-12">
         <div class="sipa-filter-card">
             <form action="{{ route('laporan.index') }}" method="GET" class="row g-2 align-items-end">
@@ -166,11 +184,23 @@
                     </select>
                 </div>
 
+                <div class="col-6 col-md-3 col-lg-2">
+                    <label class="form-label small fw-semibold text-secondary mb-1">Pilih Bulan</label>
+                    <select name="bulan" class="form-select form-select-sm">
+                        <option value="">Semua Bulan (1 Tahun Penuh)</option>
+                        @foreach ($daftarBulan as $bNum => $bNama)
+                            <option value="{{ $bNum }}" {{ request('bulan') == $bNum ? 'selected' : '' }}>
+                                {{ $bNama }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 @if (Auth::user()->isSuperAdmin())
-                    <div class="col-6 col-md-5 col-lg-4">
-                        <label class="form-label small fw-semibold text-secondary mb-1">Bidang Pembuat Surat</label>
+                    <div class="col-12 col-md-4 col-lg-4">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Lingkup Bidang</label>
                         <select name="unit_pengolah_id" class="form-select form-select-sm">
-                            <option value="">Seluruh Bidang (Dinas)</option>
+                            <option value="">Seluruh Bidang (Tingkat Dinas)</option>
                             @foreach ($unitList as $u)
                                 <option value="{{ $u->id }}" {{ request('unit_pengolah_id') == $u->id ? 'selected' : '' }}>
                                     {{ $u->nama }} ({{ $u->kode }})
@@ -178,13 +208,18 @@
                             @endforeach
                         </select>
                     </div>
+                @else
+                    <div class="col-12 col-md-4 col-lg-4">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Lingkup Bidang</label>
+                        <input type="text" class="form-control form-control-sm bg-light" value="{{ Auth::user()->unitPengolah?->nama ?? 'Seluruh Bidang (Tingkat Dinas)' }}" readonly>
+                    </div>
                 @endif
 
-                <div class="col-12 col-md-4 col-lg-3 d-flex gap-2">
+                <div class="col-12 col-md-2 col-lg-4 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold">
                         <i class="bi bi-funnel-fill me-1"></i> Terapkan Filter
                     </button>
-                    @if(request()->filled('unit_pengolah_id') || (request()->filled('tahun') && (int) request('tahun') !== (int) date('Y')))
+                    @if(request()->filled('unit_pengolah_id') || request()->filled('bulan') || (request()->filled('tahun') && (int) request('tahun') !== (int) date('Y')))
                         <a href="{{ route('laporan.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                             <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                         </a>
@@ -373,37 +408,35 @@
                                     default => 'rank-other',
                                 };
                             @endphp
-                            <li class="list-group-item py-3 px-3 border-bottom border-light-subtle top-archive-item">
+                            <li class="list-group-item py-3 px-3 top-archive-item">
                                 <div class="d-flex align-items-start gap-3">
                                     <span class="rank-medal {{ $rankCls }} mt-0.5">{{ $idx + 1 }}</span>
                                     <div class="flex-grow-1 min-w-0">
                                         <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
                                             @if ($at->arsip)
-                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-bold text-decoration-none d-inline-block text-truncate" style="font-size: 0.88rem; color: #162660;">
+                                                <a href="{{ route('arsip.show', $at->arsip) }}" class="fw-bold text-decoration-none text-truncate" style="font-size: 0.88rem; color: #162660;" title="{{ $at->arsip->kode_internal }}">
                                                     {{ $at->arsip->kode_internal }}
                                                 </a>
                                             @else
                                                 <span class="text-muted small">Arsip #{{ $at->arsip_id }}</span>
                                             @endif
                                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 fw-semibold flex-shrink-0" style="font-size: 0.72rem;">
-                                                <i class="bi bi-arrow-repeat me-1"></i>{{ $at->total_pinjam }}x Pinjam
+                                                <i class="bi bi-arrow-repeat me-1"></i>{{ $at->total_pinjam }}x Dipinjam
                                             </span>
                                         </div>
                                         @if ($at->arsip)
-                                            <div class="text-secondary line-clamp-2 mb-1" style="font-size: 0.80rem; line-height: 1.35;">
+                                            <div class="line-clamp-2 mb-2" style="font-size: 0.81rem; line-height: 1.4; color: #475569;">
                                                 {{ $at->arsip->uraian_berkas }}
                                             </div>
-                                            <div class="d-flex flex-wrap align-items-center gap-2 text-muted" style="font-size: 0.70rem;">
+                                            <div class="d-flex flex-wrap align-items-center gap-1.5 text-muted" style="font-size: 0.70rem;">
                                                 @if ($at->arsip->unit_pengolah_asal)
-                                                    <span><i class="bi bi-building me-1 opacity-75"></i>{{ $at->arsip->unit_pengolah_asal }}</span>
+                                                    <span class="badge bg-light text-secondary border px-2 py-0.5"><i class="bi bi-building me-1 opacity-75"></i>{{ $at->arsip->unit_pengolah_asal }}</span>
                                                 @endif
                                                 @if ($at->arsip->tahun)
-                                                    <span>•</span>
-                                                    <span><i class="bi bi-calendar3 me-1 opacity-75"></i>Th. {{ $at->arsip->tahun }}</span>
+                                                    <span class="badge bg-light text-secondary border px-2 py-0.5"><i class="bi bi-calendar3 me-1 opacity-75"></i>Th. {{ $at->arsip->tahun }}</span>
                                                 @endif
                                                 @if ($at->arsip->lokasi_simpan)
-                                                    <span>•</span>
-                                                    <span><i class="bi bi-box-seam me-1 opacity-75"></i>{{ $at->arsip->lokasi_simpan }}</span>
+                                                    <span class="badge bg-light text-secondary border px-2 py-0.5"><i class="bi bi-box-seam me-1 opacity-75"></i>{{ $at->arsip->lokasi_simpan }}</span>
                                                 @endif
                                             </div>
                                         @endif

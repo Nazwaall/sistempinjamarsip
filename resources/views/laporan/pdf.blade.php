@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Pemanfaatan Arsip Tahun {{ $tahun }}</title>
+    <title>LAPORAN REKAPITULASI PEMINJAMAN &amp; PENGEMBALIAN ARSIP TAHUN {{ $tahun }}</title>
     <style>
         @page {
             margin: 1.1cm 1.4cm 1.2cm 1.4cm;
@@ -114,8 +114,19 @@
 <body>
     @include('partials.pdf-kop', ['pengaturan' => $pengaturan])
 
+    @php
+        $namaBulanLengkap = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $judulPeriode = !empty($bulan) && isset($namaBulanLengkap[$bulan])
+            ? 'BULAN ' . strtoupper($namaBulanLengkap[$bulan]) . ' TAHUN ' . $tahun
+            : 'TAHUN ' . $tahun;
+    @endphp
+
     <div class="judul-laporan">
-        <h2>Laporan Rekapitulasi Pemanfaatan &amp; Pengembalian Arsip Tahun {{ $tahun }}</h2>
+        <h2>LAPORAN REKAPITULASI PEMINJAMAN &amp; PENGEMBALIAN ARSIP {{ $judulPeriode }}</h2>
         <div class="sub">
             Lingkup Bidang: <strong>{{ $unitDipilih ? $unitDipilih->nama . ' (' . $unitDipilih->kode . ')' : 'Seluruh Bidang (Tingkat Dinas)' }}</strong>
             &nbsp;|&nbsp; Dicetak: {{ now()->translatedFormat('d F Y, H:i') }} WIB

@@ -64,6 +64,19 @@
     .guide-card:hover {
         box-shadow: 0 8px 24px rgba(22, 38, 96, 0.06);
     }
+    .guide-card .btn-step-action {
+        white-space: nowrap !important;
+        font-size: 0.82rem;
+        padding: 0.45rem 1.15rem;
+    }
+    @media (max-width: 767.98px) {
+        .guide-card .btn-step-action {
+            width: 100% !important;
+            display: block !important;
+            text-align: center !important;
+            margin-top: 0.5rem;
+        }
+    }
 
     .flow-step-number {
         width: 44px;
@@ -298,8 +311,8 @@
     <!-- LANGKAH 1 -->
     <div class="col-12" id="langkah1">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-navy">1</span>
                     <div>
                         <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-1 mb-1">Tahap Penyiapan</span>
@@ -307,7 +320,7 @@
                         <p class="text-muted small mb-0">Memasukkan data arsip dinas agar siap dicari dan dipinjam oleh pemohon layanan.</p>
                     </div>
                 </div>
-                <a href="{{ route('arsip.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('arsip.index') }}" class="btn btn-outline-primary btn-sm rounded-pill btn-step-action no-print">
                     Buka Menu Arsip <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -335,8 +348,8 @@
     <!-- LANGKAH 2 -->
     <div class="col-12" id="langkah2">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-lavender">2</span>
                     <div>
                         <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1 mb-1">Tahap Registrasi</span>
@@ -344,7 +357,7 @@
                         <p class="text-muted small mb-0">Mencatat identitas penanggung jawab peminjam sebelum surat dibuat.</p>
                     </div>
                 </div>
-                <a href="{{ route('peminjam.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('peminjam.index') }}" class="btn btn-outline-primary btn-sm rounded-pill btn-step-action no-print">
                     Buka Direktori Peminjam <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -379,8 +392,8 @@
     <!-- LANGKAH 3 -->
     <div class="col-12" id="langkah3">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-sky">3</span>
                     <div>
                         <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-1 mb-1">Tahap Sirkulasi Inti</span>
@@ -388,7 +401,7 @@
                         <p class="text-muted small mb-0">Menerbitkan surat peminjaman resmi, memeriksa detail berkas, dan membubuhkan tanda tangan.</p>
                     </div>
                 </div>
-                <a href="{{ route('peminjaman.create') }}" class="btn btn-navy btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('peminjaman.create') }}" class="btn btn-navy btn-sm rounded-pill btn-step-action no-print">
                     Buka Formulir Peminjaman <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -426,8 +439,8 @@
     <!-- LANGKAH 4 -->
     <div class="col-12" id="langkah4">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-rose">4</span>
                     <div>
                         <span class="badge bg-danger-subtle text-danger border rounded-pill px-3 py-1 mb-1">Teknologi Cerdas</span>
@@ -435,7 +448,7 @@
                         <p class="text-muted small mb-0">Meluruskan foto KTP jaminan, surat tugas, atau berkas arsip secara otomatis seperti mesin scanner.</p>
                     </div>
                 </div>
-                <a href="{{ route('pemindai.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('pemindai.index') }}" class="btn btn-outline-primary btn-sm rounded-pill btn-step-action no-print">
                     Buka Pemindai Dokumen <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -464,8 +477,8 @@
     <!-- LANGKAH 5 -->
     <div class="col-12" id="langkah5">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-amber">5</span>
                     <div>
                         <span class="badge bg-warning-subtle text-warning-emphasis border rounded-pill px-3 py-1 mb-1">Tahap Pengembalian</span>
@@ -473,7 +486,7 @@
                         <p class="text-muted small mb-0">Memverifikasi berkas kembali ke depo, memeriksa kondisi fisik, dan mengembalikan jaminan.</p>
                     </div>
                 </div>
-                <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-primary btn-sm rounded-pill btn-step-action no-print">
                     Buka Pengembalian <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -507,8 +520,8 @@
     <!-- LANGKAH 6 -->
     <div class="col-12" id="langkah6">
         <div class="guide-card">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
                     <span class="flow-step-number pastel-mint">6</span>
                     <div>
                         <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-1 mb-1">Tahap Pelaporan &amp; Evaluasi</span>
@@ -516,7 +529,7 @@
                         <p class="text-muted small mb-0">Merekapitulasi seluruh layanan tahunan untuk keperluan laporan ke pimpinan dinas.</p>
                     </div>
                 </div>
-                <a href="{{ route('laporan.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap flex-shrink-0 align-self-start align-self-sm-center no-print">
+                <a href="{{ route('laporan.index') }}" class="btn btn-outline-primary btn-sm rounded-pill btn-step-action no-print">
                     Buka Laporan Tahunan <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>

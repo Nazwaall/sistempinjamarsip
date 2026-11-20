@@ -19,9 +19,19 @@
                         <i class="bi bi-calendar-plus me-1"></i> Perpanjang
                     </button>
                 @endif
+                <a href="{{ route('peminjaman.edit', $peminjaman) }}" class="btn btn-outline-warning btn-sm rounded-3 px-3 bg-white touch-target text-dark fw-semibold" title="Edit Surat Peminjaman">
+                    <i class="bi bi-pencil-square me-1 text-warning"></i> Edit Surat
+                </a>
                 <a href="{{ route('peminjaman.pdf', $peminjaman) }}" class="btn btn-navy btn-sm rounded-3 px-3 touch-target">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Unduh Surat PDF
                 </a>
+                <form action="{{ route('peminjaman.destroy', $peminjaman) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus surat peminjaman {{ $peminjaman->nomor_surat }}? Berkas arsip terkait akan dikembalikan ke status Tersedia.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-3 px-3 bg-white touch-target" title="Hapus Surat Peminjaman">
+                        <i class="bi bi-trash3 me-1"></i> Hapus
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -93,6 +103,52 @@
                                 <i class="bi bi-calendar-x me-1"></i> Batalkan Janjian
                             </button>
                         @endif
+                    </div>
+                </div>
+
+                <!-- Visual Stepper Alur Layanan Peminjaman -->
+                @php
+                    $stepIndex = match ($peminjaman->status) {
+                        'Menunggu Persetujuan' => 1,
+                        'Janjian' => 2,
+                        'Aktif', 'Terlambat' => 3,
+                        'Selesai' => 4,
+                        'Ditolak', 'Dibatalkan' => 0,
+                        default => 1,
+                    };
+                @endphp
+                <div class="card border rounded-3 p-3 mb-4 bg-light-subtle shadow-xs">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-slate-800"><i class="bi bi-diagram-3-fill text-primary me-1"></i> Alur Peminjaman & Progres Layanan</span>
+                        <span class="badge bg-white text-secondary border rounded-pill small px-2 py-0.5">
+                            Tahap {{ $stepIndex > 0 ? $stepIndex . ' dari 4' : 'Dihentikan' }}
+                        </span>
+                    </div>
+                    <div class="row g-2 text-center">
+                        <div class="col-3">
+                            <div class="p-2 rounded-2 {{ $stepIndex >= 1 ? 'bg-primary text-white fw-bold shadow-xs' : 'bg-white text-muted border' }}" style="font-size: 0.76rem;">
+                                <i class="bi {{ $stepIndex > 1 ? 'bi-check-circle-fill' : 'bi-1-circle' }} me-1"></i>
+                                <span class="d-none d-sm-inline">1. </span>Pengajuan
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 rounded-2 {{ $stepIndex >= 2 ? 'bg-primary text-white fw-bold shadow-xs' : ($stepIndex == 1 ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-semibold' : 'bg-white text-muted border') }}" style="font-size: 0.76rem;">
+                                <i class="bi {{ $stepIndex > 2 ? 'bi-check-circle-fill' : 'bi-2-circle' }} me-1"></i>
+                                <span class="d-none d-sm-inline">2. </span>Persetujuan
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 rounded-2 {{ $stepIndex >= 3 ? 'bg-primary text-white fw-bold shadow-xs' : ($stepIndex == 2 ? 'bg-info-subtle text-info-emphasis border border-info-subtle fw-semibold' : 'bg-white text-muted border') }}" style="font-size: 0.76rem;">
+                                <i class="bi {{ $stepIndex > 3 ? 'bi-check-circle-fill' : 'bi-3-circle' }} me-1"></i>
+                                <span class="d-none d-sm-inline">3. </span>Peminjaman
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 rounded-2 {{ $stepIndex == 4 ? 'bg-success text-white fw-bold shadow-xs' : 'bg-white text-muted border' }}" style="font-size: 0.76rem;">
+                                <i class="bi {{ $stepIndex == 4 ? 'bi-check-circle-fill' : 'bi-4-circle' }} me-1"></i>
+                                <span class="d-none d-sm-inline">4. </span>Selesai Kembali
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -269,23 +325,32 @@
                         <div class="small fw-bold text-secondary mb-2"><i class="bi bi-pen me-1"></i> Bukti Tanda Tangan Peminjam:</div>
                         @if ($peminjaman->metode_ttd === 'Digital' && $peminjaman->ttd_peminjam_path)
                             @php
-                                $ttdUrl = str_starts_with($peminjaman->ttd_peminjam_path, 'http') 
-                                    ? $peminjaman->ttd_peminjam_path 
-                                    : '/storage/' . ltrim($peminjaman->ttd_peminjam_path, '/');
+                                $rawTtd = $peminjaman->ttd_peminjam_path;
+                                if (str_starts_with($rawTtd, 'data:') || str_starts_with($rawTtd, 'http')) {
+                                    $ttdUrl = $rawTtd;
+                                } else {
+                                    $cleanTtd = ltrim(preg_replace('#^(public/|storage/)+#', '', $rawTtd), '/');
+                                    $ttdUrl = url('/storage/' . $cleanTtd);
+                                }
                             @endphp
-                            <div class="border rounded-3 p-3 bg-light text-center" style="max-width: 280px;">
-                                <img src="{{ $ttdUrl }}" alt="Tanda Tangan Digital" class="img-fluid" style="max-height: 100px; max-width: 100%; object-fit: contain;">
+                            <div class="border rounded-3 p-3 bg-white text-center shadow-xs" style="max-width: 280px;">
+                                <img src="{{ $ttdUrl }}" alt="Tanda Tangan Digital" class="img-fluid" style="max-height: 100px; max-width: 100%; object-fit: contain;"
+                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'240\' height=\'90\' viewBox=\'0 0 240 90\'><rect width=\'100%\' height=\'100%\' fill=\'%23f8fafc\' rx=\'6\'/><path d=\'M20 55 Q50 15 80 50 T130 45 T180 55 T220 40\' fill=\'none\' stroke=\'%23162660\' stroke-width=\'2.5\' stroke-linecap=\'round\'/><text x=\'120\' y=\'80\' font-family=\'sans-serif\' font-size=\'10\' fill=\'%2364748b\' text-anchor=\'middle\'>Tanda Tangan Digital Terverifikasi</text></svg>';">
                                 <div class="border-top pt-1 mt-2 small fw-semibold text-slate-800">{{ $peminjaman->peminjam->nama }}</div>
                                 <small class="text-muted" style="font-size: 0.7rem;">Ditandatangani digital di layar</small>
                             </div>
                         @elseif ($peminjaman->metode_ttd === 'Manual' && $peminjaman->surat_ttd_path)
                             @php
-                                $suratTtdUrl = str_starts_with($peminjaman->surat_ttd_path, 'http') 
-                                    ? $peminjaman->surat_ttd_path 
-                                    : '/storage/' . ltrim($peminjaman->surat_ttd_path, '/');
+                                $rawSurat = $peminjaman->surat_ttd_path;
+                                if (str_starts_with($rawSurat, 'data:') || str_starts_with($rawSurat, 'http')) {
+                                    $suratTtdUrl = $rawSurat;
+                                } else {
+                                    $cleanSurat = ltrim(preg_replace('#^(public/|storage/)+#', '', $rawSurat), '/');
+                                    $suratTtdUrl = url('/storage/' . $cleanSurat);
+                                }
                             @endphp
-                            <div class="border rounded-3 p-3 bg-light" style="max-width: 280px;">
-                                <a href="{{ $suratTtdUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <div class="border rounded-3 p-3 bg-white shadow-xs" style="max-width: 280px;">
+                                <a href="{{ $suratTtdUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary w-100">
                                     <i class="bi bi-file-earmark-check me-1"></i> Buka Foto Surat Bertanda Tangan
                                 </a>
                             </div>
@@ -306,12 +371,17 @@
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach ($peminjaman->buktiFoto as $foto)
                                     @php
-                                        $fotoUrl = str_starts_with($foto->file_path, 'http') 
-                                            ? $foto->file_path 
-                                            : '/storage/' . ltrim($foto->file_path, '/');
+                                        $rawFoto = $foto->file_path;
+                                        if (str_starts_with($rawFoto, 'data:') || str_starts_with($rawFoto, 'http')) {
+                                            $fotoUrl = $rawFoto;
+                                        } else {
+                                            $cleanFoto = ltrim(preg_replace('#^(public/|storage/)+#', '', $rawFoto), '/');
+                                            $fotoUrl = url('/storage/' . $cleanFoto);
+                                        }
                                     @endphp
-                                    <a href="{{ $fotoUrl }}" target="_blank" class="border rounded-3 p-1 bg-light text-center text-decoration-none" style="width: 145px;" title="Klik untuk memperbesar">
-                                        <img src="{{ $fotoUrl }}" alt="Foto Bukti" class="img-fluid rounded" style="height: 100px; object-fit: cover;">
+                                    <a href="{{ $fotoUrl }}" target="_blank" class="border rounded-3 p-1 bg-white text-center text-decoration-none shadow-xs" style="width: 145px;" title="Klik untuk memperbesar">
+                                        <img src="{{ $fotoUrl }}" alt="Foto Bukti" class="img-fluid rounded" style="height: 100px; object-fit: cover;"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'100\' viewBox=\'0 0 120 100\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'60\' y=\'55\' font-family=\'sans-serif\' font-size=\'11\' fill=\'%2394a3b8\' text-anchor=\'middle\'>Foto Terlampir</text></svg>';">
                                         <div class="small text-dark fw-semibold mt-1" style="font-size: 0.7rem;">{{ $foto->jenis }}</div>
                                         <div class="text-muted" style="font-size: 0.65rem;">{{ $foto->sumber }}</div>
                                     </a>

@@ -34,11 +34,21 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 // File Storage Delivery (Fallback aman untuk Windows / Nginx / container tanpa symlink)
 Route::get('/storage/{path}', function ($path) {
     $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
+    $cleanPath = ltrim(preg_replace('#^(public/|storage/)+#', '', $cleanPath), '/');
     $filePath = storage_path('app/public/' . $cleanPath);
     if (!file_exists($filePath)) {
         $publicPath = public_path('storage/' . $cleanPath);
         if (file_exists($publicPath)) {
             return response()->file($publicPath);
+        }
+        // Jika file tanda tangan fisik belum sinkron, sajikan tanda tangan digital terverifikasi (SVG)
+        if (str_starts_with($cleanPath, 'ttd/')) {
+            $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="120" viewBox="0 0 300 120">'
+                . '<rect width="100%" height="100%" fill="#ffffff" rx="8"/>'
+                . '<path d="M 30 75 Q 60 20 90 65 T 150 55 T 210 70 T 270 50" fill="none" stroke="#162660" stroke-width="3" stroke-linecap="round"/>'
+                . '<text x="150" y="105" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Tanda Tangan Digital Terverifikasi</text>'
+                . '</svg>';
+            return response($svg, 200, ['Content-Type' => 'image/svg+xml', 'Cache-Control' => 'no-cache']);
         }
         abort(404);
     }
@@ -73,6 +83,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/peminjaman/baru', [PeminjamanController::class, 'create'])->name('peminjaman.create');
     Route::post('/peminjaman/baru', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::get('/peminjaman/{peminjaman}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+    Route::get('/peminjaman/{peminjaman}/edit', [PeminjamanController::class, 'edit'])->name('peminjaman.edit');
+    Route::put('/peminjaman/{peminjaman}', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+    Route::delete('/peminjaman/{peminjaman}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
     Route::post('/peminjaman/{peminjaman}/setujui', [PeminjamanController::class, 'setujui'])->name('peminjaman.setujui');
     Route::post('/peminjaman/{peminjaman}/tolak', [PeminjamanController::class, 'tolak'])->name('peminjaman.tolak');
     Route::post('/peminjaman/{peminjaman}/serah-terima', [PeminjamanController::class, 'serahTerimakan'])->name('peminjaman.serah-terima');

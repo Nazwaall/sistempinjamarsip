@@ -24,8 +24,10 @@ class LaporanController extends Controller
     {
         $user = Auth::user();
         $tahun = (int) $request->input('tahun', date('Y'));
-        $query = $this->buildScopedQuery($request, $user, $tahun);
-        $metrics = $this->buildReportMetrics($query, $request, $user, $tahun);
+        $bulan = $request->filled('bulan') && $request->bulan !== '' ? (int) $request->bulan : null;
+
+        $query = $this->buildScopedQuery($request, $user, $tahun, $bulan);
+        $metrics = $this->buildReportMetrics($query, $request, $user, $tahun, $bulan);
 
         $daftarSurat = (clone $query)->latest('id')->paginate(15)->withQueryString();
         $unitList = UnitPengolah::where('aktif', true)->orderBy('id')->get();
@@ -38,11 +40,20 @@ class LaporanController extends Controller
             $tahunList = collect([date('Y')]);
         }
 
+        $selectedUnitObj = null;
+        if ($request->filled('unit_pengolah_id')) {
+            $selectedUnitObj = UnitPengolah::find($request->unit_pengolah_id);
+        } elseif ($user->unit_pengolah_id && !$user->isSuperAdmin()) {
+            $selectedUnitObj = $user->unitPengolah;
+        }
+
         return view('laporan.index', array_merge($metrics, [
             'tahun' => $tahun,
+            'bulan' => $bulan,
             'daftarSurat' => $daftarSurat,
             'unitList' => $unitList,
             'tahunList' => $tahunList,
+            'selectedUnitObj' => $selectedUnitObj,
         ]));
     }
 
@@ -51,11 +62,22 @@ class LaporanController extends Controller
     {
         $user = Auth::user();
         $tahun = (int) $request->input('tahun', date('Y'));
-        $data = $this->buildScopedQuery($request, $user, $tahun)->latest('id')->get();
-        $spreadsheet = $this->buildRekapSpreadsheet($data, $tahun);
+        $bulan = $request->filled('bulan') && $request->bulan !== '' ? (int) $request->bulan : null;
+
+        $unitDipilih = null;
+        if ($request->filled('unit_pengolah_id')) {
+            $unitDipilih = UnitPengolah::find($request->unit_pengolah_id);
+        } elseif ($user->unit_pengolah_id && !$user->isSuperAdmin()) {
+            $unitDipilih = $user->unitPengolah;
+        }
+
+        $data = $this->buildScopedQuery($request, $user, $tahun, $bulan)->latest('id')->get();
+        $spreadsheet = $this->buildRekapSpreadsheet($data, $tahun, $bulan, $unitDipilih);
 
         $writer = new Xlsx($spreadsheet);
-        $fileName = "Rekap_Peminjaman_dan_Pengembalian_Arsip_{$tahun}.xlsx";
+        $namaBulanFile = $bulan ? "_Bulan_{$bulan}" : "";
+        $unitFile = $unitDipilih ? "_{$unitDipilih->kode}" : "";
+        $fileName = "Rekap_Peminjaman_dan_Pengembalian_Arsip_{$tahun}{$namaBulanFile}{$unitFile}.xlsx";
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $fileName . '"');
@@ -68,8 +90,10 @@ class LaporanController extends Controller
     {
         $user = Auth::user();
         $tahun = (int) $request->input('tahun', date('Y'));
-        $query = $this->buildScopedQuery($request, $user, $tahun);
-        $metrics = $this->buildReportMetrics($query, $request, $user, $tahun);
+        $bulan = $request->filled('bulan') && $request->bulan !== '' ? (int) $request->bulan : null;
+
+        $query = $this->buildScopedQuery($request, $user, $tahun, $bulan);
+        $metrics = $this->buildReportMetrics($query, $request, $user, $tahun, $bulan);
 
         $daftarSurat = (clone $query)->latest('id')->get();
         $pengaturan = Pengaturan::pluck('nilai', 'kunci');
@@ -83,21 +107,30 @@ class LaporanController extends Controller
 
         $pdf = Pdf::loadView('laporan.pdf', array_merge($metrics, [
             'tahun' => $tahun,
+            'bulan' => $bulan,
             'daftarSurat' => $daftarSurat,
             'pengaturan' => $pengaturan,
             'unitDipilih' => $unitDipilih,
             'dicetakOleh' => $user->name,
         ]))->setPaper('a4', 'landscape');
 
-        return $pdf->download("Laporan_Tahunan_Pemanfaatan_Arsip_{$tahun}.pdf");
+        $namaBulanFile = $bulan ? "_Bulan_{$bulan}" : "";
+        $unitFile = $unitDipilih ? "_{$unitDipilih->kode}" : "";
+        $fileName = "Laporan_Rekapitulasi_Peminjaman_dan_Pengembalian_Arsip_Tahun_{$tahun}{$namaBulanFile}{$unitFile}.pdf";
+
+        return $pdf->download($fileName);
     }
 
-    protected function buildScopedQuery(Request $request, $user, int $tahun)
+    protected function buildScopedQuery(Request $request, $user, int $tahun, ?int $bulan = null)
     {
         $unitId = $user->unit_pengolah_id;
 
         $query = SuratPeminjaman::with(['peminjam', 'unitPengolah', 'items.arsip'])
             ->whereYear('tanggal_mulai', $tahun);
+
+        if ($bulan) {
+            $query->whereMonth('tanggal_mulai', $bulan);
+        }
 
         if ($unitId && !$user->isSuperAdmin()) {
             $query->where(function ($q) use ($unitId, $user) {
@@ -113,7 +146,7 @@ class LaporanController extends Controller
         return $query;
     }
 
-    protected function buildReportMetrics($query, Request $request, $user, int $tahun): array
+    protected function buildReportMetrics($query, Request $request, $user, int $tahun, ?int $bulan = null): array
     {
         $unitId = $user->unit_pengolah_id;
 
@@ -138,17 +171,31 @@ class LaporanController extends Controller
         $peminjamanKecamatan = (clone $query)->whereHas('peminjam', fn($q) => $q->where('jenis', 'Kecamatan / Kelurahan'))->count();
         $peminjamanEksternal = (clone $query)->whereHas('peminjam', fn($q) => $q->where('jenis', 'Eksternal'))->count();
 
-        // Rekap Bulanan
-        $rekapBulanan = (clone $query)
+        // Rekap Bulanan 12 bulan sepanjang tahun
+        $rekapBulananQuery = SuratPeminjaman::whereYear('tanggal_mulai', $tahun);
+        if ($unitId && !$user->isSuperAdmin()) {
+            $rekapBulananQuery->where(function ($q) use ($unitId, $user) {
+                $q->where('unit_pengolah_id', $unitId)
+                  ->orWhere('petugas_id', $user->id);
+            });
+        }
+        if ($request->filled('unit_pengolah_id')) {
+            $rekapBulananQuery->where('unit_pengolah_id', $request->unit_pengolah_id);
+        }
+
+        $rekapBulanan = $rekapBulananQuery
             ->selectRaw('EXTRACT(MONTH FROM tanggal_mulai) as bulan, COUNT(*) as total')
             ->groupBy('bulan')
             ->pluck('total', 'bulan')
             ->toArray();
 
-        // 10 Arsip Terbanyak Dipinjam
+        // 10 Arsip Terbanyak Dipinjam pada periode yang difilter
         $arsipTerbanyak = SuratPeminjamanItem::select('arsip_id', DB::raw('COUNT(*) as total_pinjam'))
-            ->whereHas('surat', function ($sq) use ($tahun, $unitId, $user, $request) {
+            ->whereHas('surat', function ($sq) use ($tahun, $bulan, $unitId, $user, $request) {
                 $sq->whereYear('tanggal_mulai', $tahun);
+                if ($bulan) {
+                    $sq->whereMonth('tanggal_mulai', $bulan);
+                }
                 if ($unitId && !$user->isSuperAdmin()) {
                     $sq->where(function ($q) use ($unitId, $user) {
                         $q->where('unit_pengolah_id', $unitId)
@@ -185,23 +232,38 @@ class LaporanController extends Controller
     }
 
     /**
-     * Membangun objek Spreadsheet rekapitulasi peminjaman & pengembalian tahunan.
+     * Membangun objek Spreadsheet rekapitulasi peminjaman & pengembalian tahunan / bulanan.
      */
-    protected function buildRekapSpreadsheet($data, $tahun): Spreadsheet
+    protected function buildRekapSpreadsheet($data, $tahun, ?int $bulan = null, ?UnitPengolah $unitDipilih = null): Spreadsheet
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle("Rekap {$tahun}");
+
+        $namaBulanLengkap = [
+            1 => 'JANUARI', 2 => 'FEBRUARI', 3 => 'MARET', 4 => 'APRIL',
+            5 => 'MEI', 6 => 'JUNI', 7 => 'JULI', 8 => 'AGUSTUS',
+            9 => 'SEPTEMBER', 10 => 'OKTOBER', 11 => 'NOVEMBER', 12 => 'DESEMBER'
+        ];
+
+        $periodeStr = $bulan ? 'BULAN ' . $namaBulanLengkap[$bulan] . ' TAHUN ' . $tahun : 'TAHUN ' . $tahun;
+        $sheetTitle = $bulan ? substr($namaBulanLengkap[$bulan], 0, 3) . " {$tahun}" : "Rekap {$tahun}";
+        $sheet->setTitle($sheetTitle);
 
         // Judul Header
-        $sheet->setCellValue('A1', 'REKAPITULASI LAYANAN PEMINJAMAN DAN PENGEMBALIAN ARSIP TAHUN ' . $tahun);
+        $sheet->setCellValue('A1', 'LAPORAN REKAPITULASI PEMINJAMAN & PENGEMBALIAN ARSIP ' . $periodeStr);
         $sheet->setCellValue('A2', 'DINAS KEARSIPAN DAN PERPUSTAKAAN KABUPATEN CIREBON');
+
+        $lingkupBidangStr = 'Lingkup Bidang: ' . ($unitDipilih ? $unitDipilih->nama . ' (' . $unitDipilih->kode . ')' : 'Seluruh Bidang (Tingkat Dinas)');
+        $sheet->setCellValue('A3', $lingkupBidangStr . ' | Diekspor pada: ' . now()->translatedFormat('d F Y, H:i') . ' WIB');
+
         $sheet->mergeCells('A1:P1');
         $sheet->mergeCells('A2:P2');
+        $sheet->mergeCells('A3:P3');
         $sheet->getStyle('A1:A2')->getFont()->setBold(true);
-        $sheet->getStyle('A1')->getFont()->setSize(14);
-        $sheet->getStyle('A2')->getFont()->setSize(12);
-        $sheet->getStyle('A1:P2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getFont()->setSize(13);
+        $sheet->getStyle('A2')->getFont()->setSize(11);
+        $sheet->getStyle('A3')->getFont()->setSize(9)->setItalic(true);
+        $sheet->getStyle('A1:P3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // Header Tabel
         $headers = [
@@ -225,21 +287,20 @@ class LaporanController extends Controller
 
         $col = 'A';
         foreach ($headers as $h) {
-            $cell = $col . '4';
+            $cell = $col . '5';
             $sheet->setCellValue($cell, $h);
             $sheet->getStyle($cell)->getFont()->setBold(true);
             $sheet->getStyle($cell)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFE2E8F0');
             $sheet->getStyle($cell)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
             $col++;
         }
-        $sheet->getRowDimension(4)->setRowHeight(26);
+        $sheet->getRowDimension(5)->setRowHeight(26);
 
         // Isi Data
-        $rowNum = 5;
+        $rowNum = 6;
         foreach ($data as $idx => $item) {
             $isTerlambat = $item->isTerlambat();
 
-            // Tentukan status & teks pengembalian secara presisi
             $tglPengembalian = '-';
             $statusStr = $item->status;
 
@@ -273,7 +334,6 @@ class LaporanController extends Controller
                 $statusStr = $item->isFisik() ? 'Dipinjam' : 'Aktif';
             }
 
-            // Kondisi berkas saat dikembalikan
             $kondisiKembali = '-';
             if ($item->status === 'Selesai') {
                 $kondisiList = $item->items->pluck('kondisi_kembali')->filter()->unique();
@@ -321,8 +381,8 @@ class LaporanController extends Controller
         // Border Tabel jika ada data
         if ($data->isNotEmpty()) {
             $lastRow = $rowNum - 1;
-            $tableRange = 'A4:P' . $lastRow;
-            $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFCBD5E1'));
+            $tableRange = 'A5:P' . $lastRow;
+            $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setARGB('FFCBD5E1');
         }
 
         return $spreadsheet;
