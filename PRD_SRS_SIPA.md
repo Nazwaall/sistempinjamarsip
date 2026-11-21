@@ -1,7 +1,7 @@
 # DOKUMEN SPESIFIKASI PRODUK & KEBUTUHAN PERANGKAT LUNAK
 # (PRD & SRS) SISTEM INFORMASI PEMINJAMAN ARSIP (SIPA)
 **Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon**  
-*Versi 4.0 (Edisi Final Terintegrasi - Laporan Akhir Sistem) · November 2026*
+*Versi 5.0 (Edisi Final Terintegrasi & Siap Sidang / Laporan Akhir) · November 2026*
 
 ---
 
@@ -76,14 +76,16 @@ Aplikasi SIPA menerapkan pembatasan hak akses berbasis peran (*Role-Based Access
 3. **Modal Pratinjau Detail Berkas:** Kemampuan melihat uraian informasi isi berkas, kurun waktu, jumlah lembar, dan posisi boks/rak depo sebelum memilih berkas ke keranjang peminjaman.
 4. **Direktori Peminjam Terpadu:** Pengelompokan peminjam berdasarkan kategori: *Internal Disarpus, SKPD Kabupaten Cirebon, Kecamatan, dan Eksternal / Masyarakat Umum / Peneliti*, lengkap dengan pencatatan jenis jaminan fisik.
 5. **Penerbitan Surat Peminjaman 3 Layanan:** Opsi layanan *Fisik, Digital (PDF), dan Layanan Informasi Langsung*.
-6. **Legitimasi Petugas Layanan:** Input nama asli petugas, NIP, dan bidang tugas, dengan penolakan otomatis identitas generik "Super Admin SIPA".
-7. **Tanda Tangan Peminjam:** Dukungan kanvas tanda tangan digital interaktif (HTML5 Canvas) atau tanda tangan manual di atas kertas fisik yang dipindai.
-8. **Pemindai Bukti Cerdas OpenCV.js:** Modul pemindaian dokumen kartu identitas (KTP) atau surat tugas dengan koreksi perspektif (*four-point perspective transform*) otomatis di browser.
-9. **Asesmen Kerusakan Berkas Fisik (*Damage Assessment*):** Formulir inspeksi kondisi lembar fisik arsip saat proses pengembalian (kategori kerusakan: robek, noda/basah, jamur, lapuk) dengan kalkulasi persentase integritas berkas.
-10. **Laporan & Ekspor Ganda:** Ekspor rekapitulasi peminjaman tahunan ke format **PDF Landscape ber-Kop Dinas** dan format **Excel (.xlsx)**; ekspor direktori peminjam dan riwayat peminjam individu ke PDF.
-11. **Buku Panduan & Alur Kerja Terintegrasi:** Halaman panduan 6 tahapan kerja sirkulasi, panduan peran, komparasi layanan, dan modal panduan cepat di dasbor.
-12. **Mode Gelap & Mode Terang (*Dark/Light Mode*):** Pengalih tema instan dengan penyimpanan preferensi di `localStorage` dan pencegahan kedipan putih (*anti-FOUC*).
-13. **Keamanan Login & Anti-Bot:** Verifikasi human hitungan mandiri (*Math Challenge*), pembatasan 5 kali salah login (*Rate Limiter Throttle*), serta penghapusan akses cepat demo untuk keamanan hosting publik.
+6. **Legitimasi Petugas Layanan:** Input nama asli petugas, NIP, dan bidang tugas, dengan penanganan fleksibel untuk akun Super Admin maupun operator unit.
+7. **Tanda Tangan Peminjam:** Dukungan kanvas tanda tangan digital interaktif (HTML5 Canvas) dengan penyimpanan *direct base64 embed* bebas risiko gambar rusak, atau tanda tangan manual di atas kertas fisik yang dipindai.
+8. **Fitur Edit & Hapus Peminjaman:** Fasilitas revisi peminjaman aktif (ubah berkas, tanggal kembali, barang jaminan) serta penghapusan peminjaman yang otomatis mengembalikan status berkas menjadi *Tersedia*.
+9. **Pemindai Bukti Cerdas OpenCV.js:** Modul pemindaian dokumen kartu identitas (KTP) atau surat tugas dengan koreksi perspektif (*four-point perspective transform*) otomatis di browser.
+10. **Asesmen Kerusakan Berkas Fisik (*Damage Assessment*):** Formulir inspeksi kondisi lembar fisik arsip saat proses pengembalian (kategori kerusakan: robek, noda/basah, jamur, lapuk) dengan kalkulasi persentase integritas berkas.
+11. **Laporan Rekapitulasi Tahunan & Bulanan:** Judul resmi *LAPORAN REKAPITULASI PEMINJAMAN & PENGEMBALIAN ARSIP*, filter tahun, filter bulan (Januari–Desember), keterangan *Lingkup Bidang* dinamis (Seluruh Bidang / per unit), serta ekspor ganda ke **PDF Landscape ber-Kop Dinas** dan format **Excel (.xlsx)**.
+12. **Pencadangan Data Log Audit:** Fitur unduh backup data Log Audit dalam format fail SQL (`.sql`) dan ekspor riwayat audit ke format Excel (`.xlsx`).
+13. **Buku Panduan & Alur Kerja Terintegrasi:** Halaman panduan 6 tahapan kerja sirkulasi, panduan peran, komparasi layanan, dan modal panduan cepat di dasbor.
+14. **Mode Gelap & Mode Terang (*Dark/Light Mode*):** Pengalih tema instan dengan penyimpanan preferensi di `localStorage` dan pencegahan kedipan putih (*anti-FOUC*).
+15. **Keamanan Login & Anti-Bot:** Verifikasi human hitungan mandiri (*Math Challenge*), pembatasan 5 kali salah login (*Rate Limiter Throttle*), serta penanganan ramah sesi kedaluwarsa (*graceful CSRF 419 handler*).
 
 ### 5.2 Di Luar Ruang Lingkup (*Out-of-Scope*):
 1. Digitalisasi massal seluruh lembar fisik gudang arsip dinas (sistem berfokus pada manajemen tata kelola sirkulasi dan distribusi salinan dokumen pemohon).
@@ -311,24 +313,30 @@ Menyimpan riwayat inspeksi fisik berkas saat pengembalian arsip.
 * **FR-16:** Petugas dapat membuat surat peminjaman dengan memilih unit pengolah (termasuk Bidang P2A).
 * **FR-17:** Petugas dapat memilih 3 bentuk layanan: *Fisik, Digital (PDF), atau Layanan Informasi Langsung*.
 * **FR-18:** Sistem menghasilkan nomor surat dinas otomatis berurut per unit dan per tahun.
-* **FR-19:** Sistem membatasi lama pinjam maksimal 7 hari kerja dengan opsi perpanjangan maksimal 2 kali.
-* **FR-20:** Sistem mewajibkan pengisian nama asli, NIP, dan bidang petugas pelayanan, serta menolak tegas nama default "Super Admin SIPA".
-* **FR-21:** Sistem menyediakan kanvas tanda tangan digital peminjam berbasis HTML5 Canvas yang dikonversi ke gambar PNG transparan.
+* **FR-19:** Sistem membatasi lama pinjam standar dan maksimal sesuai konfigurasi unit pengolah (7 hari kerja) yang dihitung murni dari selisih hari peminjaman, dengan opsi perpanjangan.
+* **FR-20:** Sistem mencatat nama, NIP, dan bidang petugas pelayanan secara fleksibel tanpa memblokir akun Super Admin.
+* **FR-21:** Sistem menyediakan kanvas tanda tangan digital peminjam berbasis HTML5 Canvas yang langsung disimpan dan disajikan secara mandiri (*direct base64 embed*) dengan fallback SVG terverifikasi.
 * **FR-22:** Sistem mengizinkan opsi tanda tangan manual dengan mengunggah foto surat fisik yang sudah dibubuhi tanda tangan basah.
 * **FR-23:** Sistem menyediakan tombol cetak / unduh Surat Peminjaman PDF berformat Kop Dinas Kabupaten Cirebon.
+* **FR-23a (Fitur Edit Peminjaman):** Petugas dan Super Admin dapat menyunting data surat peminjaman (`/peminjaman/{id}/edit`), termasuk merevisi berkas arsip yang dipinjam, identitas peminjam, tanggal jatuh tempo, dan barang jaminan.
+* **FR-23b (Fitur Hapus Peminjaman):** Petugas dan Super Admin dapat menghapus surat peminjaman (`DELETE /peminjaman/{id}`), di mana sistem secara otomatis memulihkan status ketersediaan seluruh berkas arsip yang bersangkutan menjadi *Tersedia*.
 
-### 4.5 Modul Pemindaian Cerdas OpenCV & Asesmen Kerusakan (FR-28 s/d FR-32)
+### 4.5 Modul Pemindaian Cerdas OpenCV & Asesmen Kerusakan (FR-24 s/d FR-27)
 * **FR-24:** Sistem menyediakan modul kamera di browser yang memanfaatkan OpenCV.js untuk mendeteksi kontur kartu identitas / dokumen.
 * **FR-25:** Sistem menerapkan transformasi perspektif (*four-point perspective transform*) untuk meluruskan citra dokumen miring secara otomatis.
 * **FR-26:** Sistem menyediakan formulir inspeksi kondisi fisik saat proses pengembalian berkas fisik (kategori robek, noda, jamur, kerapuhan).
 * **FR-27:** Sistem menghitung persentase tingkat kerusakan berkas dan menyimpannya ke dalam histori surat peminjaman.
 
-### 4.6 Modul Pelaporan & Antarmuka (FR-33 s/d FR-38)
+### 4.6 Modul Pelaporan & Antarmuka (FR-28 s/d FR-32)
 * **FR-28:** Sistem menyajikan statistik dasbor: total arsip tersedia, arsip dipinjam, surat aktif, dan peringatan surat terlambat.
-* **FR-29:** Sistem menyediakan ekspor laporan tahunan ke format **PDF Landscape resmi** dan **Excel (.xlsx)** multi-kolom.
+* **FR-29:** Sistem menyediakan ekspor laporan rekapitulasi ke format **PDF Landscape resmi** dan **Excel (.xlsx)** dengan judul *LAPORAN REKAPITULASI PEMINJAMAN & PENGEMBALIAN ARSIP*, filter tahun, filter bulan (Januari–Desember), dan keterangan cakupan *Lingkup Bidang* dinamis.
 * **FR-30:** Sistem menyediakan halaman Buku Panduan Operasional 6 Langkah dengan rincian SOP dan FAQ terintegrasi di `/panduan`.
-* **FR-31:** Sistem menyediakan Modal Panduan Cepat di dasbor.
+* **FR-31:** Sistem menyediakan Modal Panduan Cepat di dasbor dan banner CTA modern yang responsif di seluruh resolusi layar.
 * **FR-32:** Sistem menyediakan tombol alih Mode Gelap dan Terang (*Dark/Light Mode*) di topbar dan halaman login dengan persistensi `localStorage`.
+
+### 4.7 Modul Log Audit & Pencadangan Data (FR-33 s/d FR-34)
+* **FR-33 (Pencatatan & Ekspor Log Audit):** Sistem mencatat seluruh riwayat aktivitas pengguna secara otomatis dengan stempel waktu lokal perangkat (WIB), serta menyediakan fitur ekspor log audit ke format Excel (`/audit-log/export-excel`).
+* **FR-34 (Backup Data Log Audit SQL):** Super Admin dapat mengunduh berkas cadangan (*backup*) data log audit dalam format file SQL mandiri (`/audit-log/backup-sql`).
 
 ---
 
@@ -337,7 +345,7 @@ Menyimpan riwayat inspeksi fisik berkas saat pengembalian arsip.
 ### 5.1 Keamanan (*Security*)
 1. **Enkripsi Password:** Seluruh password pengguna disimpan menggunakan algoritma *Bcrypt* dengan cost factor 12.
 2. **Proteksi Serangan Web:**
-   * Proteksi *Cross-Site Request Forgery* (CSRF) aktif pada seluruh formulir transaksi (`@csrf`).
+   * Proteksi *Cross-Site Request Forgery* (CSRF) aktif pada seluruh formulir transaksi (`@csrf`) dilengkapi penanganan ramah sesi kedaluwarsa (*custom 419 error handler*).
    * Proteksi *SQL Injection* terjamin melalui penggunaan *Prepared Statements* via Eloquent ORM / PDO.
    * Proteksi *Cross-Site Scripting* (XSS) melalui *Blade automatic HTML escaping* (`{{ }}`).
 3. **Anti Brute-Force & Bot:** Pembatasan *Rate Limiter* maksimal 5 kali kegagalan login per menit, dan verifikasi hitungan matematika dinamis di sisi server.
@@ -392,4 +400,5 @@ Untuk mencegah kebocoran file kredensial `.env`, struktur penataan folder di ser
 | **v1.0** | 10 Okt 2026 | Inisiasi awal arsitektur SIPA (peminjaman fisik dasar). |
 | **v2.0** | 25 Okt 2026 | Integrasi OCR Tesseract.js dan modul foto webcam. |
 | **v3.0** | 5 Nov 2026 | Multi-unit pengolah, integrasi PostgreSQL, dan ekspor dasar. |
-| **v4.0** | 16 Nov 2026 | **Edisi Final Laporan Akhir:** Transisi ke MySQL 8.0, 3 bentuk layanan (Fisik, Digital, Informasi), unit Bidang P2A, identitas asli petugas pelayanan, pemindai cerdas OpenCV.js, formulir *Damage Assessment* berkas fisik, ekspor PDF Landscape ber-Kop Dinas, buku panduan 6 langkah interaktif, Mode Gelap/Terang, verifikasi human *Math Challenge*, rate limiter anti-bot, dan deployment blueprint hosting. |
+| **v4.0** | 16 Nov 2026 | Transisi ke MySQL 8.0, 3 bentuk layanan (Fisik, Digital, Informasi), unit Bidang P2A, identitas asli petugas pelayanan, pemindai cerdas OpenCV.js, formulir *Damage Assessment* berkas fisik, ekspor PDF Landscape ber-Kop Dinas, buku panduan 6 langkah interaktif, Mode Gelap/Terang, verifikasi human *Math Challenge*, rate limiter anti-bot, dan deployment blueprint hosting. |
+| **v5.0** | 20 Nov 2026 | **Edisi Final Terintegrasi & Siap Sidang:** Penambahan fitur Edit dan Hapus Surat Peminjaman dengan auto-restore ketersediaan arsip; penyempurnaan filter Laporan Rekapitulasi per Bulan dan per Lingkup Bidang dinamis; penyesuaian judul laporan resmi kedinasan; fitur pencadangan data Log Audit format SQL (.sql) dan Excel (.xlsx); perbaikan kalkulasi durasi peminjaman murni selisih hari; optimalisasi tampilan tanda tangan digital direct base64 embed; serta perapian banner dan penanganan graceful sesi kadaluwarsa (419). |
