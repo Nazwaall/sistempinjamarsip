@@ -25,5 +25,9 @@ class AppServiceProvider extends ServiceProvider
         setlocale(LC_TIME, 'id_ID.utf8', 'id_ID', 'id', 'Indonesian_indonesia.1252');
 
         Paginator::useBootstrapFive();
+
+        if (config('app.env') === 'production' || env('FORCE_HTTPS', false) || request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }

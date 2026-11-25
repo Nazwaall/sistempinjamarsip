@@ -441,11 +441,20 @@
             overflow: hidden;
         }
         .sipa-cta-banner .cta-btn-wrap {
-            display: flex;
-            gap: 0.65rem;
+            display: inline-flex;
+            gap: 0.75rem;
             justify-content: flex-end;
             align-items: center;
-            flex-wrap: wrap;
+            flex-shrink: 0;
+            width: auto;
+        }
+        .sipa-cta-banner .cta-btn-wrap .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            width: auto;
+            flex-shrink: 0;
         }
         @media (max-width: 991.98px) {
             .sipa-cta-banner {
@@ -454,17 +463,18 @@
             .sipa-cta-banner .cta-btn-wrap {
                 justify-content: flex-start;
                 width: 100%;
-                margin-top: 0.25rem;
+                margin-top: 0.5rem;
             }
         }
         @media (max-width: 575.98px) {
             .sipa-cta-banner .cta-btn-wrap {
                 flex-direction: column;
                 gap: 0.5rem;
+                width: 100%;
             }
             .sipa-cta-banner .cta-btn-wrap .btn {
                 width: 100% !important;
-                display: block;
+                display: flex;
                 text-align: center;
             }
         }

@@ -416,7 +416,7 @@
 <!-- 6. BANNER CTA PENUTUP NAVY GELAP -->
 <div class="sipa-cta-banner mb-4">
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
             <div class="pastel-icon-circle bg-white bg-opacity-10 text-white flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.4rem;">
                 <i class="bi bi-file-earmark-check"></i>
             </div>
